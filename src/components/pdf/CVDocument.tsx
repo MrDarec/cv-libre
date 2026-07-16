@@ -5,68 +5,137 @@ import {
   View,
   StyleSheet,
   Image,
+  Font,
 } from "@react-pdf/renderer";
 import { CVData, COLOR_THEMES } from "@/types/cv";
 
 // ==========================================
-// 1. ATS CLASSIQUE PDF LAYOUT & STYLES
+// REGISTER GOOGLE FONTS FOR PDF GENERATION
 // ==========================================
-const classiqueStyles = StyleSheet.create({
-  page: {
-    padding: 40,
-    fontSize: 10,
-    fontFamily: "Helvetica",
-    color: "#1f2937", // Slate 800
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e5e7eb", // Slate 200
-    paddingBottom: 12,
-    marginBottom: 16,
-  },
-  name: { fontSize: 20, fontFamily: "Helvetica-Bold", color: "#111827" },
-  title: { fontSize: 11, color: "#4b5563", marginTop: 2, fontFamily: "Helvetica-Bold" },
-  contact: { fontSize: 8.5, color: "#4b5563", marginTop: 6 },
-  photo: { width: 70, height: 70, borderRadius: 4, objectFit: "cover" },
-  sectionTitle: {
-    fontSize: 9,
-    fontFamily: "Helvetica-Bold",
-    textTransform: "uppercase",
-    letterSpacing: 1,
-    marginBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f3f4f6",
-    paddingBottom: 2,
-  },
-  section: { marginBottom: 14 },
-  expRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 2,
-  },
-  expTitle: { fontFamily: "Helvetica-Bold", fontSize: 10, color: "#111827" },
-  expDate: { fontSize: 8.5, color: "#6b7280" },
-  expLieu: { fontSize: 8.5, color: "#6b7280", marginBottom: 2 },
-  bullet: { fontSize: 9, color: "#4b5563", marginBottom: 2, marginLeft: 8 },
-  expBlock: { marginBottom: 10 },
-  twoCol: { flexDirection: "row", gap: 20, marginTop: 4 },
-  col: { flex: 1 },
+Font.register({
+  family: "Inter",
+  fonts: [
+    { src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_y.ttf", fontWeight: "normal" },
+    { src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuDyfAZ9hjp-Ek-_y.ttf", fontWeight: "bold" },
+  ]
 });
 
-function ClassiquePDF({ cv, accentColor }: { cv: CVData; accentColor: string }) {
+Font.register({
+  family: "Merriweather",
+  fonts: [
+    { src: "https://fonts.gstatic.com/s/merriweather/v28/u-440qyZ1Y2bLpE93F65GxIB.ttf", fontWeight: "normal" },
+    { src: "https://fonts.gstatic.com/s/merriweather/v28/u-4adeqyZ1Y2bLpE93F65GbEadh4nFM.ttf", fontWeight: "bold" },
+  ]
+});
+
+Font.register({
+  family: "Fira Code",
+  fonts: [
+    { src: "https://fonts.gstatic.com/s/firacode/v21/uIC54c2vpCwygOFtrHSFJmLF.ttf", fontWeight: "normal" },
+    { src: "https://fonts.gstatic.com/s/firacode/v21/uIC54c2vpCwygOFtrHSFJmLF.ttf", fontWeight: "bold" }
+  ]
+});
+
+Font.register({
+  family: "Montserrat",
+  fonts: [
+    { src: "https://fonts.gstatic.com/s/montserrat/v25/JTUSjIg1_i6t8kCHKm459W1hyyTh89ZNpQ.ttf", fontWeight: "normal" },
+    { src: "https://fonts.gstatic.com/s/montserrat/v25/JTURjIg1_i6t8kCHKm45_dJE3gnD_vx3rCs.ttf", fontWeight: "bold" }
+  ]
+});
+
+Font.register({
+  family: "Playfair Display",
+  fonts: [
+    { src: "https://fonts.gstatic.com/s/playfairdisplay/v30/nuFvD-vYSZ2x4nz1EF3q52zv311PtSE3oqITdB3tug.ttf", fontWeight: "normal" },
+    { src: "https://fonts.gstatic.com/s/playfairdisplay/v30/nuFvD-vYSZ2x4nz1EF3q52zv311PtSE3oqITdB3tu08.ttf", fontWeight: "bold" }
+  ]
+});
+
+// Helper to resolve font family
+const getFontFamily = (family?: string) => {
+  switch (family) {
+    case "serif": return "Merriweather";
+    case "mono": return "Fira Code";
+    case "elegant": return "Montserrat";
+    case "playfair": return "Playfair Display";
+    case "sans":
+    default:
+      return "Inter";
+  }
+};
+
+// Helper to resolve font size multiplier
+const getFontSizeMultiplier = (size?: string) => {
+  switch (size) {
+    case "sm": return 0.85;
+    case "lg": return 1.15;
+    case "md":
+    default:
+      return 1.0;
+  }
+};
+
+// ============================================================================
+// 1. ATS CLASSIQUE PDF TEMPLATE
+// ============================================================================
+function ClassiquePDF({ cv, accentColor, fontName, sizeMult }: { cv: CVData; accentColor: string; fontName: string; sizeMult: number }) {
   const { infos } = cv;
 
+  const styles = StyleSheet.create({
+    page: {
+      padding: 40,
+      fontSize: 9.5 * sizeMult,
+      fontFamily: fontName,
+      color: "#1f2937",
+    },
+    header: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      borderBottomWidth: 1,
+      borderBottomColor: "#e5e7eb",
+      paddingBottom: 12,
+      marginBottom: 16,
+    },
+    name: { fontSize: 20 * sizeMult, fontFamily: fontName, fontWeight: "bold", color: "#111827" },
+    title: { fontSize: 11 * sizeMult, color: "#4b5563", marginTop: 2, fontFamily: fontName, fontWeight: "bold" },
+    contact: { fontSize: 8.5 * sizeMult, color: "#4b5563", marginTop: 5 },
+    photo: { width: 70, height: 70, borderRadius: 4, objectFit: "cover" },
+    sectionTitle: {
+      fontSize: 9 * sizeMult,
+      fontFamily: fontName,
+      fontWeight: "bold",
+      textTransform: "uppercase",
+      letterSpacing: 1,
+      marginBottom: 8,
+      borderBottomWidth: 1,
+      borderBottomColor: "#f3f4f6",
+      paddingBottom: 2,
+    },
+    section: { marginBottom: 14 },
+    expRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      marginBottom: 2,
+    },
+    expTitle: { fontFamily: fontName, fontWeight: "bold", fontSize: 10 * sizeMult, color: "#111827" },
+    expDate: { fontSize: 8.5 * sizeMult, color: "#6b7280" },
+    expLieu: { fontSize: 8.5 * sizeMult, color: "#6b7280", marginBottom: 2 },
+    bullet: { fontSize: 9 * sizeMult, color: "#4b5563", marginBottom: 2, marginLeft: 8 },
+    expBlock: { marginBottom: 10 },
+    twoCol: { flexDirection: "row", gap: 20, marginTop: 4 },
+    col: { flex: 1 },
+  });
+
   return (
-    <Page size="A4" style={classiqueStyles.page}>
-      <View style={classiqueStyles.header}>
-        <View>
-          <Text style={classiqueStyles.name}>
+    <Page size="A4" style={styles.page}>
+      <View style={styles.header}>
+        <View style={{ flex: 1, marginRight: 15 }}>
+          <Text style={styles.name}>
             {infos.prenom || "Prénom"} {infos.nom || "Nom"}
           </Text>
-          <Text style={classiqueStyles.title}>{infos.titre}</Text>
-          <Text style={classiqueStyles.contact}>
+          <Text style={styles.title}>{infos.titre}</Text>
+          <Text style={styles.contact}>
             {[
               infos.email,
               infos.telephone,
@@ -76,10 +145,10 @@ function ClassiquePDF({ cv, accentColor }: { cv: CVData; accentColor: string }) 
               .join("   ·   ")}
           </Text>
           {(infos.linkedin || infos.github || infos.portfolio) && (
-            <Text style={classiqueStyles.contact}>
+            <Text style={styles.contact}>
               {[
                 infos.linkedin && `LinkedIn : ${infos.linkedin}`,
-                infos.github && `GitHub / Portfolio : ${infos.github}`,
+                infos.github && `GitHub : ${infos.github}`,
                 infos.portfolio && `Portfolio : ${infos.portfolio}`,
               ]
                 .filter(Boolean)
@@ -88,37 +157,36 @@ function ClassiquePDF({ cv, accentColor }: { cv: CVData; accentColor: string }) 
           )}
         </View>
         {infos.inclurePhoto && infos.photoUrl && (
-          // eslint-disable-next-line jsx-a11y/alt-text
-          <Image src={infos.photoUrl} style={classiqueStyles.photo} />
+          <Image src={infos.photoUrl} style={styles.photo} />
         )}
       </View>
 
       {cv.resume && (
-        <View style={classiqueStyles.section}>
-          <Text style={[classiqueStyles.sectionTitle, { color: accentColor }]}>Profil</Text>
-          <Text style={{ fontSize: 9.5, lineHeight: 1.4 }}>{cv.resume}</Text>
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: accentColor }]}>Profil</Text>
+          <Text style={{ fontSize: 9.5 * sizeMult, lineHeight: 1.4 }}>{cv.resume}</Text>
         </View>
       )}
 
       {cv.experiences.length > 0 && (
-        <View style={classiqueStyles.section}>
-          <Text style={[classiqueStyles.sectionTitle, { color: accentColor }]}>Expérience professionnelle</Text>
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: accentColor }]}>Expérience professionnelle</Text>
           {cv.experiences.map((exp) => (
-            <View key={exp.id} style={classiqueStyles.expBlock}>
-              <View style={classiqueStyles.expRow}>
-                <Text style={classiqueStyles.expTitle}>
+            <View key={exp.id} style={styles.expBlock}>
+              <View style={styles.expRow}>
+                <Text style={styles.expTitle}>
                   {exp.poste}
                   {exp.entreprise ? ` — ${exp.entreprise}` : ""}
                 </Text>
-                <Text style={classiqueStyles.expDate}>
+                <Text style={styles.expDate}>
                   {exp.debut} – {exp.enCours ? "présent" : exp.fin}
                 </Text>
               </View>
-              {exp.lieu && <Text style={classiqueStyles.expLieu}>{exp.lieu}</Text>}
+              {exp.lieu && <Text style={styles.expLieu}>{exp.lieu}</Text>}
               {exp.bullets
                 .filter((b) => b.trim())
                 .map((b, i) => (
-                  <Text key={i} style={classiqueStyles.bullet}>
+                  <Text key={i} style={styles.bullet}>
                     • {b}
                   </Text>
                 ))}
@@ -128,36 +196,36 @@ function ClassiquePDF({ cv, accentColor }: { cv: CVData; accentColor: string }) 
       )}
 
       {cv.formations.length > 0 && (
-        <View style={classiqueStyles.section}>
-          <Text style={[classiqueStyles.sectionTitle, { color: accentColor }]}>Formation</Text>
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: accentColor }]}>Formation</Text>
           {cv.formations.map((f) => (
-            <View key={f.id} style={classiqueStyles.expBlock}>
-              <View style={classiqueStyles.expRow}>
-                <Text style={{ fontSize: 9.5, fontFamily: "Helvetica-Bold", color: "#111827" }}>
+            <View key={f.id} style={styles.expBlock}>
+              <View style={styles.expRow}>
+                <Text style={{ fontSize: 9.5 * sizeMult, fontFamily: fontName, fontWeight: "bold", color: "#111827" }}>
                   {f.diplome}
                   {f.etablissement ? ` — ${f.etablissement}` : ""}
                 </Text>
-                <Text style={classiqueStyles.expDate}>{f.annee}</Text>
+                <Text style={styles.expDate}>{f.annee}</Text>
               </View>
-              {f.lieu && <Text style={classiqueStyles.expLieu}>{f.lieu}</Text>}
+              {f.lieu && <Text style={styles.expLieu}>{f.lieu}</Text>}
             </View>
           ))}
         </View>
       )}
 
-      <View style={classiqueStyles.twoCol}>
+      <View style={styles.twoCol}>
         {cv.competences.length > 0 && (
-          <View style={classiqueStyles.col}>
-            <Text style={[classiqueStyles.sectionTitle, { color: accentColor }]}>Compétences</Text>
-            <Text style={{ fontSize: 9, lineHeight: 1.4 }}>
+          <View style={styles.col}>
+            <Text style={[styles.sectionTitle, { color: accentColor }]}>Compétences</Text>
+            <Text style={{ fontSize: 9 * sizeMult, lineHeight: 1.4 }}>
               {cv.competences.map((c) => c.nom).join("  ·  ")}
             </Text>
           </View>
         )}
         {cv.langues.length > 0 && (
-          <View style={classiqueStyles.col}>
-            <Text style={[classiqueStyles.sectionTitle, { color: accentColor }]}>Langues</Text>
-            <Text style={{ fontSize: 9, lineHeight: 1.4 }}>
+          <View style={styles.col}>
+            <Text style={[styles.sectionTitle, { color: accentColor }]}>Langues</Text>
+            <Text style={{ fontSize: 9 * sizeMult, lineHeight: 1.4 }}>
               {cv.langues.map((l) => `${l.nom} (${l.niveau})`).join("  ·  ")}
             </Text>
           </View>
@@ -167,225 +235,215 @@ function ClassiquePDF({ cv, accentColor }: { cv: CVData; accentColor: string }) 
   );
 }
 
-// ==========================================
-// 2. MODERNE PDF LAYOUT & STYLES (TWO COLUMN)
-// ==========================================
-const moderneStyles = StyleSheet.create({
-  page: {
-    flexDirection: "row",
-    fontFamily: "Helvetica",
-    fontSize: 9.5,
-    color: "#374151",
-    backgroundColor: "#ffffff",
-  },
-  aside: {
-    width: 175,
-    color: "#ffffff",
-    padding: 20,
-    paddingTop: 30,
-  },
-  main: {
-    flex: 1,
-    padding: 24,
-    paddingTop: 30,
-  },
-  photo: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    marginBottom: 16,
-    borderWidth: 2,
-    objectFit: "cover",
-    alignSelf: "center",
-  },
-  asideName: {
-    fontSize: 16,
-    fontFamily: "Helvetica-Bold",
-    color: "#ffffff",
-    lineHeight: 1.1,
-  },
-  asideTitle: {
-    fontSize: 9,
-    fontFamily: "Helvetica-Bold",
-    marginTop: 6,
-    marginBottom: 16,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-  asideSectionTitle: {
-    fontSize: 8.5,
-    fontFamily: "Helvetica-Bold",
-    textTransform: "uppercase",
-    marginTop: 18,
-    marginBottom: 6,
-    letterSpacing: 0.5,
-    borderBottomWidth: 0.5,
-    borderBottomColor: "rgba(255,255,255,0.1)",
-    paddingBottom: 2,
-  },
-  asideContactItem: {
-    fontSize: 7.5,
-    color: "#d1d5db", // Gray 300
-    marginBottom: 4,
-    lineHeight: 1.3,
-  },
-  asideItem: {
-    fontSize: 8,
-    color: "#f3f4f6", // Gray 100
-    marginBottom: 3.5,
-    lineHeight: 1.25,
-  },
-  sectionTitle: {
-    fontSize: 9,
-    fontFamily: "Helvetica-Bold",
-    textTransform: "uppercase",
-    marginBottom: 8,
-    marginTop: 14,
-    letterSpacing: 0.5,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f3f4f6",
-    paddingBottom: 3,
-  },
-  section: {
-    marginBottom: 10,
-  },
-  resumeText: {
-    fontSize: 9,
-    lineHeight: 1.35,
-    color: "#4b5563",
-  },
-  expBlock: {
-    marginBottom: 8,
-  },
-  expHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "baseline",
-    marginBottom: 1,
-  },
-  expTitle: {
-    fontFamily: "Helvetica-Bold",
-    fontSize: 9,
-  },
-  expDate: {
-    fontSize: 7.5,
-    color: "#6b7280",
-  },
-  expLieu: {
-    fontSize: 7.5,
-    color: "#6b7280",
-    marginBottom: 2,
-  },
-  bullet: {
-    fontSize: 8.5,
-    color: "#4b5563",
-    marginBottom: 1.5,
-    marginLeft: 6,
-    lineHeight: 1.25,
-  },
-  formRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "baseline",
-    marginBottom: 1,
-  },
-  formTitle: {
-    fontFamily: "Helvetica-Bold",
-    fontSize: 9,
-  },
-});
-
-function ModernePDF({ cv, accentColor, primaryColor }: { cv: CVData; accentColor: string; primaryColor: string }) {
+// ============================================================================
+// 2. MODERNE PDF TEMPLATE
+// ============================================================================
+function ModernePDF({ cv, accentColor, primaryColor, fontName, sizeMult }: { cv: CVData; accentColor: string; primaryColor: string; fontName: string; sizeMult: number }) {
   const { infos } = cv;
 
+  const styles = StyleSheet.create({
+    page: {
+      flexDirection: "row",
+      fontFamily: fontName,
+      fontSize: 9.5 * sizeMult,
+      color: "#374151",
+      backgroundColor: "#ffffff",
+    },
+    aside: {
+      width: "32%",
+      backgroundColor: primaryColor,
+      color: "#ffffff",
+      padding: 24,
+      flexDirection: "column",
+    },
+    main: {
+      width: "68%",
+      padding: 30,
+    },
+    photo: {
+      width: 75,
+      height: 75,
+      borderRadius: 75 / 2,
+      borderWidth: 2,
+      borderColor: accentColor,
+      marginBottom: 16,
+      objectFit: "cover",
+      alignSelf: "center",
+    },
+    asideName: {
+      fontSize: 16 * sizeMult,
+      fontFamily: fontName,
+      fontWeight: "bold",
+      color: "#ffffff",
+      lineHeight: 1.15,
+      textAlign: "center",
+    },
+    asideTitle: {
+      fontSize: 9.5 * sizeMult,
+      marginTop: 4,
+      fontWeight: "bold",
+      textTransform: "uppercase",
+      letterSpacing: 0.5,
+      textAlign: "center",
+      marginBottom: 20,
+    },
+    asideSectionTitle: {
+      fontSize: 9 * sizeMult,
+      fontWeight: "bold",
+      textTransform: "uppercase",
+      letterSpacing: 1,
+      marginTop: 15,
+      marginBottom: 8,
+      borderBottomWidth: 1,
+      borderBottomColor: "rgba(255,255,255,0.15)",
+      paddingBottom: 3,
+    },
+    asideContactItem: {
+      fontSize: 7.5 * sizeMult,
+      color: "#d1d5db",
+      marginBottom: 6,
+      lineHeight: 1.3,
+    },
+    asideItem: {
+      fontSize: 8 * sizeMult,
+      color: "#e5e7eb",
+      marginBottom: 4,
+    },
+    section: {
+      marginBottom: 16,
+    },
+    sectionTitle: {
+      fontSize: 10 * sizeMult,
+      fontWeight: "bold",
+      textTransform: "uppercase",
+      letterSpacing: 1,
+      marginBottom: 10,
+      borderBottomWidth: 1,
+      borderBottomColor: "#f3f4f6",
+      paddingBottom: 3,
+    },
+    resumeText: {
+      fontSize: 9 * sizeMult,
+      lineHeight: 1.45,
+      color: "#4b5563",
+    },
+    expBlock: {
+      marginBottom: 12,
+    },
+    expHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "baseline",
+    },
+    expTitle: {
+      fontSize: 9.5 * sizeMult,
+      fontWeight: "bold",
+      color: "#111827",
+    },
+    expDate: {
+      fontSize: 8 * sizeMult,
+      color: "#6b7280",
+    },
+    expLieu: {
+      fontSize: 8 * sizeMult,
+      color: "#9ca3af",
+      marginBottom: 3,
+    },
+    bullet: {
+      fontSize: 8.5 * sizeMult,
+      color: "#4b5563",
+      marginLeft: 6,
+      marginBottom: 1.5,
+    },
+    formRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "baseline",
+      marginBottom: 1,
+    },
+    formTitle: {
+      fontSize: 9 * sizeMult,
+      fontWeight: "bold",
+    },
+  });
+
   return (
-    <Page size="A4" style={moderneStyles.page}>
-      {/* Sidebar aside column */}
-      <View style={[moderneStyles.aside, { backgroundColor: primaryColor }]}>
-        {infos.inclurePhoto && infos.photoUrl ? (
-          // eslint-disable-next-line jsx-a11y/alt-text
-          <Image src={infos.photoUrl} style={[moderneStyles.photo, { borderColor: accentColor }]} />
-        ) : null}
-        
-        <Text style={moderneStyles.asideName}>
-          {infos.prenom || "Prénom"}
+    <Page size="A4" style={styles.page}>
+      <View style={styles.aside}>
+        {infos.inclurePhoto && infos.photoUrl && (
+          <Image src={infos.photoUrl} style={styles.photo} />
+        )}
+        <Text style={styles.asideName}>
+          {infos.prenom} {infos.nom}
         </Text>
-        <Text style={{ ...moderneStyles.asideName, fontFamily: "Helvetica-Bold" }}>
-          {infos.nom || "Nom"}
-        </Text>
-        
-        <Text style={[moderneStyles.asideTitle, { color: accentColor }]}>
-          {infos.titre || "Titre du poste"}
+        <Text style={[styles.asideTitle, { color: accentColor }]}>
+          {infos.titre || "Recherche de poste"}
         </Text>
 
-        {/* Contacts info */}
-        <Text style={[moderneStyles.asideSectionTitle, { color: accentColor }]}>Contact</Text>
-        <View style={{ marginTop: 2 }}>
-          {infos.email ? <Text style={moderneStyles.asideContactItem}>{infos.email}</Text> : null}
-          {infos.telephone ? <Text style={moderneStyles.asideContactItem}>{infos.telephone}</Text> : null}
+        <Text style={[styles.asideSectionTitle, { color: accentColor }]}>Contact</Text>
+        <View>
+          {infos.email ? <Text style={styles.asideContactItem}>{infos.email}</Text> : null}
+          {infos.telephone ? <Text style={styles.asideContactItem}>{infos.telephone}</Text> : null}
           {infos.ville || infos.pays ? (
-            <Text style={moderneStyles.asideContactItem}>
+            <Text style={styles.asideContactItem}>
               {[infos.ville, infos.pays].filter(Boolean).join(", ")}
             </Text>
           ) : null}
-          {infos.linkedin ? <Text style={moderneStyles.asideContactItem}>LinkedIn : {infos.linkedin}</Text> : null}
-          {infos.github ? <Text style={moderneStyles.asideContactItem}>GitHub / Portfolio : {infos.github}</Text> : null}
-          {infos.portfolio ? <Text style={moderneStyles.asideContactItem}>Portfolio : {infos.portfolio}</Text> : null}
+          {infos.linkedin ? <Text style={styles.asideContactItem}>LinkedIn: {infos.linkedin}</Text> : null}
+          {infos.github ? <Text style={styles.asideContactItem}>GitHub: {infos.github}</Text> : null}
+          {infos.portfolio ? <Text style={styles.asideContactItem}>Portfolio: {infos.portfolio}</Text> : null}
         </View>
 
-        {/* Competences list */}
         {cv.competences.length > 0 && (
           <View>
-            <Text style={[moderneStyles.asideSectionTitle, { color: accentColor }]}>Compétences</Text>
+            <Text style={[styles.asideSectionTitle, { color: accentColor }]}>Compétences</Text>
             {cv.competences.map((c) => (
-              <Text key={c.id} style={moderneStyles.asideItem}>
+              <Text key={c.id} style={styles.asideItem}>
                 • {c.nom}
               </Text>
             ))}
           </View>
         )}
 
-        {/* Languages list */}
         {cv.langues.length > 0 && (
-          <View>
-            <Text style={[moderneStyles.asideSectionTitle, { color: accentColor }]}>Langues</Text>
+          <View style={{ marginTop: 10 }}>
+            <Text style={[styles.asideSectionTitle, { color: accentColor }]}>Langues</Text>
             {cv.langues.map((l) => (
-              <Text key={l.id} style={moderneStyles.asideItem}>
-                • {l.nom} ({l.niveau})
+              <Text key={l.id} style={styles.asideItem}>
+                {l.nom} ({l.niveau})
               </Text>
             ))}
           </View>
         )}
       </View>
 
-      {/* Main column */}
-      <View style={moderneStyles.main}>
-        {cv.resume ? (
-          <View style={moderneStyles.section}>
-            <Text style={[moderneStyles.sectionTitle, { color: accentColor }]}>Profil</Text>
-            <Text style={moderneStyles.resumeText}>{cv.resume}</Text>
+      <View style={styles.main}>
+        {cv.resume && (
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: accentColor }]}>Profil</Text>
+            <Text style={styles.resumeText}>{cv.resume}</Text>
           </View>
-        ) : null}
+        )}
 
         {cv.experiences.length > 0 && (
-          <View style={moderneStyles.section}>
-            <Text style={[moderneStyles.sectionTitle, { color: accentColor }]}>Expérience professionnelle</Text>
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: accentColor }]}>Expérience professionnelle</Text>
             {cv.experiences.map((exp) => (
-              <View key={exp.id} style={moderneStyles.expBlock}>
-                <View style={moderneStyles.expHeader}>
-                  <Text style={[moderneStyles.expTitle, { color: primaryColor }]}>
+              <View key={exp.id} style={styles.expBlock}>
+                <View style={styles.expHeader}>
+                  <Text style={[styles.expTitle, { color: primaryColor }]}>
                     {exp.poste}
                     {exp.entreprise ? ` — ${exp.entreprise}` : ""}
                   </Text>
-                  <Text style={moderneStyles.expDate}>
+                  <Text style={styles.expDate}>
                     {exp.debut} – {exp.enCours ? "présent" : exp.fin}
                   </Text>
                 </View>
-                {exp.lieu ? <Text style={moderneStyles.expLieu}>{exp.lieu}</Text> : null}
+                {exp.lieu ? <Text style={styles.expLieu}>{exp.lieu}</Text> : null}
                 {exp.bullets
                   .filter((b) => b.trim())
                   .map((b, i) => (
-                    <Text key={i} style={moderneStyles.bullet}>
+                    <Text key={i} style={styles.bullet}>
                       • {b}
                     </Text>
                   ))}
@@ -395,16 +453,16 @@ function ModernePDF({ cv, accentColor, primaryColor }: { cv: CVData; accentColor
         )}
 
         {cv.formations.length > 0 && (
-          <View style={moderneStyles.section}>
-            <Text style={[moderneStyles.sectionTitle, { color: accentColor }]}>Formation</Text>
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: accentColor }]}>Formation</Text>
             {cv.formations.map((f) => (
-              <View key={f.id} style={{ marginBottom: 6 }}>
-                <View style={moderneStyles.formRow}>
-                  <Text style={[moderneStyles.formTitle, { color: primaryColor }]}>{f.diplome}</Text>
-                  <Text style={moderneStyles.expDate}>{f.annee}</Text>
+              <View key={f.id} style={{ marginBottom: 8 }}>
+                <View style={styles.formRow}>
+                  <Text style={[styles.formTitle, { color: primaryColor }]}>{f.diplome}</Text>
+                  <Text style={styles.expDate}>{f.annee}</Text>
                 </View>
                 {f.etablissement || f.lieu ? (
-                  <Text style={moderneStyles.expLieu}>
+                  <Text style={styles.expLieu}>
                     {f.etablissement}
                     {f.etablissement && f.lieu ? `, ` : ""}
                     {f.lieu}
@@ -419,11 +477,782 @@ function ModernePDF({ cv, accentColor, primaryColor }: { cv: CVData; accentColor
   );
 }
 
-// ==========================================
-// 3. MAIN COMPONENT ROUTER
-// ==========================================
+// ============================================================================
+// 3. MINIMALISTE PDF TEMPLATE
+// ============================================================================
+function MinimalistePDF({ cv, accentColor, fontName, sizeMult }: { cv: CVData; accentColor: string; fontName: string; sizeMult: number }) {
+  const { infos } = cv;
+
+  const styles = StyleSheet.create({
+    page: {
+      paddingHorizontal: 50,
+      paddingVertical: 45,
+      fontSize: 9 * sizeMult,
+      fontFamily: fontName,
+      color: "#27272a", // zinc-800
+    },
+    header: {
+      alignItems: "center",
+      marginBottom: 20,
+    },
+    name: {
+      fontSize: 22 * sizeMult,
+      fontFamily: fontName,
+      fontWeight: "bold",
+      color: "#09090b", // zinc-950
+      letterSpacing: 0.5,
+    },
+    title: {
+      fontSize: 9.5 * sizeMult,
+      color: accentColor,
+      textTransform: "uppercase",
+      letterSpacing: 1.5,
+      marginTop: 5,
+      fontWeight: "bold",
+    },
+    contactRow: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      justifyContent: "center",
+      gap: 12,
+      marginTop: 8,
+      fontSize: 8 * sizeMult,
+      color: "#71717a",
+    },
+    divider: {
+      borderBottomWidth: 1,
+      borderBottomColor: "#f4f4f5",
+      paddingBottom: 2,
+      marginBottom: 10,
+      textAlign: "center",
+      fontSize: 9 * sizeMult,
+      fontWeight: "bold",
+      textTransform: "uppercase",
+      letterSpacing: 1.5,
+      color: "#a1a1aa",
+    },
+    section: {
+      marginBottom: 18,
+    },
+    resume: {
+      fontSize: 9 * sizeMult,
+      lineHeight: 1.5,
+      color: "#52525b",
+      textAlign: "center",
+      fontStyle: "italic",
+      marginBottom: 14,
+      paddingHorizontal: 20,
+    },
+    expBlock: {
+      marginBottom: 10,
+    },
+    expHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "baseline",
+      marginBottom: 1,
+    },
+    expTitle: {
+      fontSize: 9.5 * sizeMult,
+      fontWeight: "bold",
+      color: "#18181b",
+    },
+    expDate: {
+      fontSize: 8 * sizeMult,
+      color: "#71717a",
+    },
+    expLieu: {
+      fontSize: 8 * sizeMult,
+      color: "#a1a1aa",
+      fontStyle: "italic",
+      marginBottom: 2,
+    },
+    bullet: {
+      fontSize: 8.5 * sizeMult,
+      color: "#52525b",
+      marginLeft: 10,
+      marginBottom: 1,
+      lineHeight: 1.35,
+    },
+    twoCol: {
+      flexDirection: "row",
+      gap: 30,
+      marginTop: 5,
+    },
+    col: {
+      flex: 1,
+    },
+    photo: {
+      width: 50,
+      height: 50,
+      borderRadius: 25,
+      objectFit: "cover",
+      marginTop: 8,
+      opacity: 0.8,
+    }
+  });
+
+  return (
+    <Page size="A4" style={styles.page}>
+      <View style={styles.header}>
+        <Text style={styles.name}>
+          {infos.prenom} {infos.nom}
+        </Text>
+        <Text style={styles.title}>{infos.titre || "CV"}</Text>
+        <View style={styles.contactRow}>
+          {infos.email ? <Text>{infos.email}</Text> : null}
+          {infos.telephone ? <Text>{infos.telephone}</Text> : null}
+          {infos.ville || infos.pays ? (
+            <Text>{[infos.ville, infos.pays].filter(Boolean).join(", ")}</Text>
+          ) : null}
+        </View>
+        {(infos.linkedin || infos.github || infos.portfolio) && (
+          <View style={[styles.contactRow, { marginTop: 2, color: "#a1a1aa" }]}>
+            {infos.linkedin ? <Text>LinkedIn: {infos.linkedin}</Text> : null}
+            {infos.github ? <Text>GitHub: {infos.github}</Text> : null}
+            {infos.portfolio ? <Text>Portfolio: {infos.portfolio}</Text> : null}
+          </View>
+        )}
+      </View>
+
+      {cv.resume && (
+        <Text style={styles.resume}>{cv.resume}</Text>
+      )}
+
+      {cv.experiences.length > 0 && (
+        <View style={styles.section}>
+          <Text style={styles.divider}>Expérience</Text>
+          {cv.experiences.map((exp) => (
+            <View key={exp.id} style={styles.expBlock}>
+              <View style={styles.expHeader}>
+                <Text style={styles.expTitle}>
+                  {exp.poste}  ·  <Text style={{ fontWeight: "normal", color: "#52525b" }}>{exp.entreprise}</Text>
+                </Text>
+                <Text style={styles.expDate}>
+                  {exp.debut} – {exp.enCours ? "présent" : exp.fin}
+                </Text>
+              </View>
+              {exp.lieu ? <Text style={styles.expLieu}>{exp.lieu}</Text> : null}
+              {exp.bullets
+                .filter((b) => b.trim())
+                .map((b, i) => (
+                  <Text key={i} style={styles.bullet}>
+                    — {b}
+                  </Text>
+                ))}
+            </View>
+          ))}
+        </View>
+      )}
+
+      {cv.formations.length > 0 && (
+        <View style={styles.section}>
+          <Text style={styles.divider}>Formation</Text>
+          {cv.formations.map((f) => (
+            <View key={f.id} style={{ marginBottom: 6 }}>
+              <View style={styles.expHeader}>
+                <Text style={styles.expTitle}>
+                  {f.diplome}
+                  {f.etablissement ? <Text style={{ fontWeight: "normal", color: "#52525b" }}> — {f.etablissement}</Text> : ""}
+                </Text>
+                <Text style={styles.expDate}>{f.annee}</Text>
+              </View>
+              {f.lieu ? <Text style={styles.expLieu}>{f.lieu}</Text> : null}
+            </View>
+          ))}
+        </View>
+      )}
+
+      <View style={styles.twoCol}>
+        {cv.competences.length > 0 && (
+          <View style={styles.col}>
+            <Text style={[styles.divider, { textAlign: "left" }]}>Compétences</Text>
+            <Text style={{ fontSize: 8.5 * sizeMult, color: "#52525b", lineHeight: 1.4 }}>
+              {cv.competences.map((c) => c.nom).join("  ·  ")}
+            </Text>
+          </View>
+        )}
+        {cv.langues.length > 0 && (
+          <View style={styles.col}>
+            <Text style={[styles.divider, { textAlign: "left" }]}>Langues</Text>
+            <Text style={{ fontSize: 8.5 * sizeMult, color: "#52525b", lineHeight: 1.4 }}>
+              {cv.langues.map((l) => `${l.nom} (${l.niveau})`).join("  ·  ")}
+            </Text>
+          </View>
+        )}
+      </View>
+
+      {infos.inclurePhoto && infos.photoUrl && (
+        <View style={{ alignItems: "center", marginTop: 15 }}>
+          <Image src={infos.photoUrl} style={styles.photo} />
+        </View>
+      )}
+    </Page>
+  );
+}
+
+// ============================================================================
+// 4. PROFESSIONNEL PDF TEMPLATE
+// ============================================================================
+function ProfessionnelPDF({ cv, accentColor, fontName, sizeMult }: { cv: CVData; accentColor: string; fontName: string; sizeMult: number }) {
+  const { infos } = cv;
+
+  const styles = StyleSheet.create({
+    page: {
+      padding: 40,
+      fontSize: 9.5 * sizeMult,
+      fontFamily: fontName,
+      color: "#1e293b", // slate-800
+    },
+    header: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "flex-end",
+      borderBottomWidth: 2,
+      borderBottomColor: accentColor,
+      paddingBottom: 10,
+      marginBottom: 18,
+    },
+    name: {
+      fontSize: 21 * sizeMult,
+      fontFamily: fontName,
+      fontWeight: "bold",
+      color: "#0f172a", // slate-900
+      lineHeight: 1.1,
+    },
+    title: {
+      fontSize: 11 * sizeMult,
+      color: "#475569", // slate-600
+      marginTop: 2,
+      fontFamily: fontName,
+      fontWeight: "bold",
+    },
+    contactBlock: {
+      textAlign: "right",
+      fontSize: 8.5 * sizeMult,
+      color: "#64748b", // slate-500
+      lineHeight: 1.3,
+    },
+    section: {
+      marginBottom: 16,
+    },
+    sectionTitle: {
+      fontSize: 10 * sizeMult,
+      fontFamily: fontName,
+      fontWeight: "bold",
+      textTransform: "uppercase",
+      letterSpacing: 1,
+      color: "#0f172a",
+      borderBottomWidth: 1,
+      borderBottomColor: "#cbd5e1",
+      paddingBottom: 2,
+      marginBottom: 8,
+    },
+    resumeText: {
+      fontSize: 9 * sizeMult,
+      lineHeight: 1.45,
+      color: "#334155",
+    },
+    expBlock: {
+      marginBottom: 10,
+    },
+    expHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "baseline",
+    },
+    expTitle: {
+      fontSize: 9.5 * sizeMult,
+      fontWeight: "bold",
+      color: "#0f172a",
+    },
+    expDate: {
+      fontSize: 8.5 * sizeMult,
+      color: "#475569",
+      fontWeight: "bold",
+    },
+    expLieu: {
+      fontSize: 8.5 * sizeMult,
+      color: "#64748b",
+      fontStyle: "italic",
+      marginBottom: 2,
+    },
+    bullet: {
+      fontSize: 8.5 * sizeMult,
+      color: "#334155",
+      marginLeft: 10,
+      marginBottom: 1.5,
+    },
+    twoCol: {
+      flexDirection: "row",
+      gap: 25,
+      marginTop: 4,
+    },
+    col: {
+      flex: 1,
+    },
+    skillBadge: {
+      fontSize: 8 * sizeMult,
+      color: "#334155",
+      backgroundColor: "#f1f5f9",
+      borderWidth: 1,
+      borderColor: "#e2e8f0",
+      borderRadius: 3,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      marginRight: 4,
+      marginBottom: 4,
+    },
+    skillsContainer: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      marginTop: 2,
+    },
+    langRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      fontSize: 9 * sizeMult,
+      color: "#334155",
+      marginBottom: 4,
+    }
+  });
+
+  return (
+    <Page size="A4" style={styles.page}>
+      <View style={styles.header}>
+        <View style={{ flex: 1, marginRight: 15 }}>
+          <Text style={styles.name}>
+            {infos.prenom} {infos.nom}
+          </Text>
+          <Text style={styles.title}>{infos.titre || "Cadre Professionnel"}</Text>
+        </View>
+        <View style={styles.contactBlock}>
+          {infos.email ? <Text>{infos.email}</Text> : null}
+          {infos.telephone ? <Text>{infos.telephone}</Text> : null}
+          {infos.ville || infos.pays ? (
+            <Text>{[infos.ville, infos.pays].filter(Boolean).join(", ")}</Text>
+          ) : null}
+          {(infos.linkedin || infos.github || infos.portfolio) && (
+            <Text style={{ fontSize: 7.5 * sizeMult, color: "#94a3b8", marginTop: 2 }}>
+              {[infos.linkedin, infos.github, infos.portfolio].filter(Boolean).join("  |  ")}
+            </Text>
+          )}
+        </View>
+      </View>
+
+      {cv.resume && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Profil Professionnel</Text>
+          <Text style={styles.resumeText}>{cv.resume}</Text>
+        </View>
+      )}
+
+      {cv.experiences.length > 0 && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Expérience Professionnelle</Text>
+          {cv.experiences.map((exp) => (
+            <View key={exp.id} style={styles.expBlock}>
+              <View style={styles.expHeader}>
+                <Text style={styles.expTitle}>
+                  {exp.poste} <Text style={{ fontWeight: "normal", color: "#475569" }}>— {exp.entreprise}</Text>
+                </Text>
+                <Text style={styles.expDate}>
+                  {exp.debut} – {exp.enCours ? "Présent" : exp.fin}
+                </Text>
+              </View>
+              {exp.lieu ? <Text style={styles.expLieu}>{exp.lieu}</Text> : null}
+              {exp.bullets
+                .filter((b) => b.trim())
+                .map((b, i) => (
+                  <Text key={i} style={styles.bullet}>
+                    • {b}
+                  </Text>
+                ))}
+            </View>
+          ))}
+        </View>
+      )}
+
+      {cv.formations.length > 0 && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Formation et Diplômes</Text>
+          {cv.formations.map((f) => (
+            <View key={f.id} style={{ marginBottom: 6 }}>
+              <View style={styles.expHeader}>
+                <Text style={styles.expTitle}>
+                  {f.diplome}
+                  {f.etablissement ? <Text style={{ fontWeight: "normal", color: "#475569" }}> — {f.etablissement}</Text> : ""}
+                </Text>
+                <Text style={styles.expDate}>{f.annee}</Text>
+              </View>
+              {f.lieu ? <Text style={styles.expLieu}>{f.lieu}</Text> : null}
+            </View>
+          ))}
+        </View>
+      )}
+
+      <View style={styles.twoCol}>
+        {cv.competences.length > 0 && (
+          <View style={styles.col}>
+            <Text style={styles.sectionTitle}>Compétences Clés</Text>
+            <View style={styles.skillsContainer}>
+              {cv.competences.map((c) => (
+                <Text key={c.id} style={styles.skillBadge}>{c.nom}</Text>
+              ))}
+            </View>
+          </View>
+        )}
+        {cv.langues.length > 0 && (
+          <View style={styles.col}>
+            <Text style={styles.sectionTitle}>Langues</Text>
+            <View style={{ marginTop: 2 }}>
+              {cv.langues.map((l) => (
+                <View key={l.id} style={styles.langRow}>
+                  <Text style={{ fontWeight: "bold" }}>{l.nom}</Text>
+                  <Text style={{ color: "#64748b", fontSize: 8.5 * sizeMult }}>{l.niveau}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+      </View>
+    </Page>
+  );
+}
+
+// ============================================================================
+// 5. CREATIF PDF TEMPLATE
+// ============================================================================
+function CreatifPDF({ cv, accentColor, primaryColor, fontName, sizeMult }: { cv: CVData; accentColor: string; primaryColor: string; fontName: string; sizeMult: number }) {
+  const { infos } = cv;
+
+  const styles = StyleSheet.create({
+    page: {
+      fontFamily: fontName,
+      fontSize: 9 * sizeMult,
+      color: "#334155", // slate-700
+      backgroundColor: "#ffffff",
+    },
+    header: {
+      backgroundColor: primaryColor,
+      color: "#ffffff",
+      paddingHorizontal: 30,
+      paddingVertical: 25,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    headerText: {
+      flex: 1,
+      marginRight: 15,
+    },
+    name: {
+      fontSize: 22 * sizeMult,
+      fontFamily: fontName,
+      fontWeight: "bold",
+      color: "#ffffff",
+      lineHeight: 1.1,
+    },
+    title: {
+      fontSize: 10 * sizeMult,
+      color: accentColor,
+      textTransform: "uppercase",
+      letterSpacing: 1.5,
+      marginTop: 6,
+      fontWeight: "bold",
+    },
+    photo: {
+      width: 70,
+      height: 70,
+      borderRadius: 10,
+      borderWidth: 3,
+      borderColor: accentColor,
+      objectFit: "cover",
+    },
+    bodyGrid: {
+      flexDirection: "row",
+      flex: 1,
+    },
+    mainCol: {
+      width: "65%",
+      padding: 24,
+    },
+    sideCol: {
+      width: "35%",
+      backgroundColor: "#f8fafc", // slate-50
+      padding: 20,
+      borderLeftWidth: 1,
+      borderLeftColor: "#f1f5f9",
+    },
+    section: {
+      marginBottom: 16,
+    },
+    sectionTitle: {
+      fontSize: 10 * sizeMult,
+      fontWeight: "bold",
+      textTransform: "uppercase",
+      letterSpacing: 1,
+      color: "#0f172a", // slate-900
+      marginBottom: 10,
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    sectionIndicator: {
+      width: 3,
+      height: 10,
+      backgroundColor: accentColor,
+      marginRight: 6,
+    },
+    resumeText: {
+      fontSize: 9 * sizeMult,
+      lineHeight: 1.45,
+      color: "#475569",
+    },
+    expBlock: {
+      marginBottom: 12,
+      borderLeftWidth: 1.5,
+      borderLeftColor: "#f1f5f9",
+      paddingLeft: 10,
+      position: "relative",
+    },
+    expHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "baseline",
+    },
+    expTitle: {
+      fontSize: 9 * sizeMult,
+      fontWeight: "bold",
+      color: "#0f172a",
+    },
+    expDate: {
+      fontSize: 7.5 * sizeMult,
+      color: "#94a3b8",
+      fontWeight: "bold",
+    },
+    expCompany: {
+      fontSize: 8 * sizeMult,
+      fontWeight: "bold",
+      color: "#64748b",
+      marginBottom: 3,
+    },
+    bullet: {
+      fontSize: 8 * sizeMult,
+      color: "#475569",
+      marginBottom: 1.5,
+      marginLeft: 4,
+    },
+    sidebarTitle: {
+      fontSize: 9 * sizeMult,
+      fontWeight: "bold",
+      textTransform: "uppercase",
+      letterSpacing: 1,
+      color: "#0f172a",
+      borderBottomWidth: 1,
+      borderBottomColor: "#e2e8f0",
+      paddingBottom: 2,
+      marginBottom: 8,
+    },
+    sidebarLabel: {
+      fontSize: 7.5 * sizeMult,
+      textTransform: "uppercase",
+      letterSpacing: 0.5,
+      color: "#94a3b8",
+      fontWeight: "bold",
+      marginTop: 6,
+    },
+    sidebarValue: {
+      fontSize: 8.5 * sizeMult,
+      color: "#334155",
+      marginBottom: 2,
+    },
+    badgeContainer: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 3,
+      marginTop: 4,
+    },
+    badge: {
+      fontSize: 7.5 * sizeMult,
+      fontWeight: "bold",
+      backgroundColor: "#ffffff",
+      color: "#334155",
+      borderWidth: 1,
+      borderColor: "#e2e8f0",
+      borderRadius: 3,
+      paddingHorizontal: 5,
+      paddingVertical: 1.5,
+    },
+    langRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      fontSize: 8.5 * sizeMult,
+      color: "#334155",
+      marginBottom: 3,
+    },
+    footerLine: {
+      height: 4,
+      backgroundColor: accentColor,
+    }
+  });
+
+  return (
+    <Page size="A4" style={styles.page}>
+      <View style={styles.header}>
+        <View style={styles.headerText}>
+          <Text style={styles.name}>
+            {infos.prenom} {infos.nom}
+          </Text>
+          <Text style={styles.title}>{infos.titre || "Créatif"}</Text>
+        </View>
+        {infos.inclurePhoto && infos.photoUrl && (
+          <Image src={infos.photoUrl} style={styles.photo} />
+        )}
+      </View>
+
+      <View style={styles.bodyGrid}>
+        {/* Left main col */}
+        <View style={styles.mainCol}>
+          {cv.resume && (
+            <View style={styles.section}>
+              <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 6 }}>
+                <View style={styles.sectionIndicator} />
+                <Text style={styles.sectionTitle}>Profil</Text>
+              </View>
+              <Text style={styles.resumeText}>{cv.resume}</Text>
+            </View>
+          )}
+
+          {cv.experiences.length > 0 && (
+            <View style={styles.section}>
+              <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 8 }}>
+                <View style={styles.sectionIndicator} />
+                <Text style={styles.sectionTitle}>Expériences</Text>
+              </View>
+              {cv.experiences.map((exp) => (
+                <View key={exp.id} style={styles.expBlock}>
+                  <View style={styles.expHeader}>
+                    <Text style={styles.expTitle}>{exp.poste}</Text>
+                    <Text style={styles.expDate}>
+                      {exp.debut} – {exp.enCours ? "Présent" : exp.fin}
+                    </Text>
+                  </View>
+                  <Text style={styles.expCompany}>
+                    {exp.entreprise} {exp.lieu ? `(${exp.lieu})` : ""}
+                  </Text>
+                  {exp.bullets
+                    .filter((b) => b.trim())
+                    .map((b, i) => (
+                      <Text key={i} style={styles.bullet}>
+                        • {b}
+                      </Text>
+                    ))}
+                </View>
+              ))}
+            </View>
+          )}
+
+          {cv.formations.length > 0 && (
+            <View style={styles.section}>
+              <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 8 }}>
+                <View style={styles.sectionIndicator} />
+                <Text style={styles.sectionTitle}>Formation</Text>
+              </View>
+              {cv.formations.map((f) => (
+                <View key={f.id} style={{ marginBottom: 6 }}>
+                  <View style={styles.expHeader}>
+                    <Text style={[styles.expTitle, { fontSize: 8.5 * sizeMult }]}>
+                      {f.diplome}
+                      {f.etablissement ? <Text style={{ fontWeight: "normal", color: "#64748b" }}> — {f.etablissement}</Text> : ""}
+                    </Text>
+                    <Text style={styles.expDate}>{f.annee}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          )}
+        </View>
+
+        {/* Right side col */}
+        <View style={styles.sideCol}>
+          <View style={styles.section}>
+            <Text style={styles.sidebarTitle}>Contact</Text>
+            {infos.email ? (
+              <View>
+                <Text style={styles.sidebarLabel}>E-mail</Text>
+                <Text style={styles.sidebarValue}>{infos.email}</Text>
+              </View>
+            ) : null}
+            {infos.telephone ? (
+              <View>
+                <Text style={styles.sidebarLabel}>Téléphone</Text>
+                <Text style={styles.sidebarValue}>{infos.telephone}</Text>
+              </View>
+            ) : null}
+            {infos.ville || infos.pays ? (
+              <View>
+                <Text style={styles.sidebarLabel}>Localisation</Text>
+                <Text style={styles.sidebarValue}>
+                  {[infos.ville, infos.pays].filter(Boolean).join(", ")}
+                </Text>
+              </View>
+            ) : null}
+            {infos.linkedin ? (
+              <View>
+                <Text style={styles.sidebarLabel}>LinkedIn</Text>
+                <Text style={styles.sidebarValue}>{infos.linkedin}</Text>
+              </View>
+            ) : null}
+            {infos.github ? (
+              <View>
+                <Text style={styles.sidebarLabel}>GitHub</Text>
+                <Text style={styles.sidebarValue}>{infos.github}</Text>
+              </View>
+            ) : null}
+            {infos.portfolio ? (
+              <View>
+                <Text style={styles.sidebarLabel}>Portfolio</Text>
+                <Text style={styles.sidebarValue}>{infos.portfolio}</Text>
+              </View>
+            ) : null}
+          </View>
+
+          {cv.competences.length > 0 && (
+            <View style={styles.section}>
+              <Text style={styles.sidebarTitle}>Compétences</Text>
+              <View style={styles.badgeContainer}>
+                {cv.competences.map((c) => (
+                  <Text key={c.id} style={styles.badge}>{c.nom}</Text>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {cv.langues.length > 0 && (
+            <View style={styles.section}>
+              <Text style={styles.sidebarTitle}>Langues</Text>
+              {cv.langues.map((l) => (
+                <View key={l.id} style={styles.langRow}>
+                  <Text style={{ fontWeight: "bold" }}>{l.nom}</Text>
+                  <Text style={{ color: "#64748b", fontSize: 8 * sizeMult }}>{l.niveau}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+        </View>
+      </View>
+
+      <View style={styles.footerLine} />
+    </Page>
+  );
+}
+
+// ============================================================================
+// MAIN PDF COMPONENT ROUTER
+// ============================================================================
 export default function CVDocument({ cv }: { cv: CVData }) {
-  const isModerne = cv.templateId === "moderne";
+  const templateId = cv.templateId || "ats-classique";
 
   // Resolve custom color theme
   const themeId = cv.colorTheme || "default";
@@ -431,15 +1260,25 @@ export default function CVDocument({ cv }: { cv: CVData }) {
   const accentColor = activeTheme.accent;
   const primaryColor = activeTheme.primary;
 
+  // Resolve font and size
+  const fontName = getFontFamily(cv.fontFamily);
+  const sizeMult = getFontSizeMultiplier(cv.fontSize);
+
   return (
     <Document
       title={`CV - ${cv.infos.prenom || "cv"} ${cv.infos.nom || "libre"}`}
       author="CV Libre - Éditions Cypher"
     >
-      {isModerne ? (
-        <ModernePDF cv={cv} accentColor={accentColor} primaryColor={primaryColor} />
+      {templateId === "moderne" ? (
+        <ModernePDF cv={cv} accentColor={accentColor} primaryColor={primaryColor} fontName={fontName} sizeMult={sizeMult} />
+      ) : templateId === "minimaliste" ? (
+        <MinimalistePDF cv={cv} accentColor={accentColor} fontName={fontName} sizeMult={sizeMult} />
+      ) : templateId === "professionnel" ? (
+        <ProfessionnelPDF cv={cv} accentColor={accentColor} fontName={fontName} sizeMult={sizeMult} />
+      ) : templateId === "creatif" ? (
+        <CreatifPDF cv={cv} accentColor={accentColor} primaryColor={primaryColor} fontName={fontName} sizeMult={sizeMult} />
       ) : (
-        <ClassiquePDF cv={cv} accentColor={accentColor} />
+        <ClassiquePDF cv={cv} accentColor={accentColor} fontName={fontName} sizeMult={sizeMult} />
       )}
     </Document>
   );

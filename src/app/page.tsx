@@ -132,7 +132,7 @@ export default function Home() {
     }
   };
 
-  const switchTemplate = (templateId: "ats-classique" | "moderne") => {
+  const switchTemplate = (templateId: "ats-classique" | "moderne" | "minimaliste" | "professionnel" | "creatif") => {
     setCV((c) => ({ ...c, templateId }));
   };
 
@@ -328,27 +328,26 @@ export default function Home() {
             </div>
 
             {/* Quick Template Switcher */}
-            <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-zinc-800 p-1 rounded-xl">
-              <button
-                onClick={() => switchTemplate("ats-classique")}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  cv.templateId === "ats-classique"
-                    ? "bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-sm"
-                    : "text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200"
-                }`}
-              >
-                <LayoutTemplate size={12} /> {"ATS Classique"}
-              </button>
-              <button
-                onClick={() => switchTemplate("moderne")}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  cv.templateId === "moderne"
-                    ? "bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-sm"
-                    : "text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200"
-                }`}
-              >
-                <LayoutTemplate size={12} /> {"Moderne"}
-              </button>
+            <div className="flex flex-wrap items-center gap-1 bg-slate-100 dark:bg-zinc-800 p-1 rounded-xl">
+              {([
+                { id: "ats-classique", label: "ATS Classique" },
+                { id: "moderne", label: "Moderne" },
+                { id: "minimaliste", label: "Minimaliste" },
+                { id: "professionnel", label: "Professionnel" },
+                { id: "creatif", label: "Créatif" }
+              ] as const).map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => switchTemplate(t.id)}
+                  className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
+                    cv.templateId === t.id
+                      ? "bg-white dark:bg-zinc-700 text-slate-900 dark:text-white shadow-sm"
+                      : "text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200"
+                  }`}
+                >
+                  <LayoutTemplate size={11} /> {t.label}
+                </button>
+              ))}
             </div>
           </div>
 
