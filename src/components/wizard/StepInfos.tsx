@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useCVStore } from "@/lib/store";
-import { Upload, Trash2 } from "lucide-react";
+import { Upload, Trash2, RotateCw, ZoomIn, Check, X } from "lucide-react";
 
 const inputClass =
   "w-full bg-slate-50 dark:bg-zinc-800/30 border border-slate-200 dark:border-zinc-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 dark:text-zinc-100 placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:border-slate-900 focus:ring-4 focus:ring-slate-900/5 dark:focus:border-indigo-500 dark:focus:ring-indigo-500/10 transition-all duration-200";
@@ -10,66 +10,39 @@ const inputClass =
 const labelClass =
   "block text-[10px] font-extrabold text-slate-600 dark:text-zinc-400 mb-1.5 uppercase tracking-wider";
 
-// Utility to center-crop to square and resize image client-side to 300x300px
-const resizeImage = (file: File, callback: (base64: string) => void) => {
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      const MAX_WIDTH = 300;
-      const MAX_HEIGHT = 300;
-      const width = img.width;
-      const height = img.height;
-
-      // Crop to a square center
-      const size = Math.min(width, height);
-      const xOffset = (width - size) / 2;
-      const yOffset = (height - size) / 2;
-
-      canvas.width = MAX_WIDTH;
-      canvas.height = MAX_HEIGHT;
-
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        ctx.drawImage(
-          img,
-          xOffset,
-          yOffset,
-          size,
-          size,
-          0,
-          0,
-          MAX_WIDTH,
-          MAX_HEIGHT
-        );
-        // Compress as JPEG to keep Base64 string small (<20KB) for localStorage persistence
-        const dataUrl = canvas.toDataURL("image/jpeg", 0.8);
-        callback(dataUrl);
-      }
-    };
-    img.src = event.target?.result as string;
-  };
-  reader.readAsDataURL(file);
-};
-
 export default function StepInfos() {
   const { cv, setCV } = useCVStore();
   const { infos } = cv;
   const [isDragging, setIsDragging] = useState(false);
 
+  // States for Image Cropping Modal
+  const [croppingImageSrc, setCroppingImageSrc] = useState<string | null>(null);
+  const [zoom, setZoom] = useState(1);
+  const [rotation, setRotation] = useState(0);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
+
   const update = (field: keyof typeof infos, value: string | boolean) =>
     setCV((c) => ({ ...c, infos: { ...c.infos, [field]: value } }));
 
+  // File Upload handler
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      resizeImage(file, (base64) => {
-        update("photoUrl", base64);
-      });
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setCroppingImageSrc(event.target.result as string);
+          setZoom(1);
+          setPosition({ x: 0, y: 0 });
+          setRotation(0);
+        }
+      };
+      reader.readAsDataURL(file);
     }
   };
 
+  // Drag & Drop handlers
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
@@ -84,14 +57,92 @@ export default function StepInfos() {
     setIsDragging(false);
     const file = e.dataTransfer.files?.[0];
     if (file && file.type.startsWith("image/")) {
-      resizeImage(file, (base64) => {
-        update("photoUrl", base64);
-      });
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setCroppingImageSrc(event.target.result as string);
+          setZoom(1);
+          setPosition({ x: 0, y: 0 });
+          setRotation(0);
+        }
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   const removePhoto = () => {
     update("photoUrl", "");
+  };
+
+  // Interaction handlers for dragging inside crop area
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!dragStart) return;
+    setPosition({
+      x: e.clientX - dragStart.x,
+      y: e.clientY - dragStart.y,
+    });
+  };
+
+  const handleMouseUp = () => {
+    setDragStart(null);
+  };
+
+  // Mobile touch controls
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      setDragStart({
+        x: e.touches[0].clientX - position.x,
+        y: e.touches[0].clientY - position.y,
+      });
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!dragStart || e.touches.length !== 1) return;
+    setPosition({
+      x: e.touches[0].clientX - dragStart.x,
+      y: e.touches[0].clientY - dragStart.y,
+    });
+  };
+
+  // Perform final crop onto Canvas
+  const handleCropSave = () => {
+    if (!croppingImageSrc) return;
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = 300;
+      canvas.height = 300;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        // 1. Translate center of canvas
+        ctx.translate(150, 150);
+
+        // 2. Rotate canvas
+        ctx.rotate((rotation * Math.PI) / 180);
+
+        // 3. Translate dragging offset
+        ctx.translate(position.x, position.y);
+
+        // 4. Scale image to fit 300px crop box, multiplied by custom zoom
+        const baseScale = 300 / Math.min(img.width, img.height);
+        ctx.scale(baseScale * zoom, baseScale * zoom);
+
+        // 5. Draw image centered
+        ctx.drawImage(img, -img.width / 2, -img.height / 2);
+
+        // Compress base64 to keep storage small
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+        update("photoUrl", dataUrl);
+        setCroppingImageSrc(null);
+      }
+    };
+    img.src = croppingImageSrc;
   };
 
   return (
@@ -200,14 +251,27 @@ export default function StepInfos() {
               />
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-bold text-slate-800 dark:text-zinc-200">Photo chargée avec succès</p>
-                <p className="text-[10px] text-slate-500 dark:text-zinc-400 mt-0.5">Automatiquement centrée au format carré recommandé (300x300px)</p>
-                <button
-                  type="button"
-                  onClick={removePhoto}
-                  className="mt-2 inline-flex items-center gap-1 text-[10px] font-extrabold text-red-500 hover:text-red-600 transition-colors uppercase tracking-wider"
-                >
-                  <Trash2 size={12} /> Supprimer la photo
-                </button>
+                <div className="flex gap-3 mt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCroppingImageSrc(infos.photoUrl!);
+                      setZoom(1);
+                      setPosition({ x: 0, y: 0 });
+                      setRotation(0);
+                    }}
+                    className="inline-flex items-center gap-1 text-[10px] font-extrabold text-indigo-650 hover:text-indigo-600 transition-colors uppercase tracking-wider"
+                  >
+                    Recadrer la photo
+                  </button>
+                  <button
+                    type="button"
+                    onClick={removePhoto}
+                    className="inline-flex items-center gap-1 text-[10px] font-extrabold text-red-500 hover:text-red-650 transition-colors uppercase tracking-wider"
+                  >
+                    <Trash2 size={12} /> Supprimer
+                  </button>
+                </div>
               </div>
             </div>
           ) : (
@@ -235,7 +299,7 @@ export default function StepInfos() {
                 {"Glisser-déposer ou cliquer pour choisir une image"}
               </p>
               <p className="text-[10px] text-slate-500 dark:text-zinc-400 mt-1">
-                {"Formats supportés : PNG, JPG. Redimensionnement carré automatique."}
+                {"Formats supportés : PNG, JPG. Ajustez ensuite le recadrage."}
               </p>
             </div>
           )}
@@ -262,6 +326,115 @@ export default function StepInfos() {
           onChange={(e) => setCV((c) => ({ ...c, resume: e.target.value }))}
         />
       </div>
+
+      {/* Image Cropper Modal */}
+      {croppingImageSrc && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-900/60 dark:bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 select-none"
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleMouseUp}
+        >
+          <div
+            className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl w-full max-w-md p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button
+              onClick={() => setCroppingImageSrc(null)}
+              className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-slate-650 hover:bg-slate-105 dark:hover:text-zinc-200 dark:hover:bg-zinc-800 transition-colors"
+            >
+              <X size={16} />
+            </button>
+
+            <h3 className="text-sm font-extrabold text-slate-900 dark:text-white mb-4">
+              Recadrer et ajuster la photo
+            </h3>
+
+            {/* Crop Window Area */}
+            <div className="flex flex-col items-center justify-center gap-6">
+              <div
+                className="w-64 h-64 rounded-full relative overflow-hidden bg-slate-100 dark:bg-zinc-950 border-4 border-indigo-500/50 shadow-inner cursor-move flex items-center justify-center"
+                onMouseDown={handleMouseDown}
+                onTouchStart={handleTouchStart}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={croppingImageSrc}
+                  alt="A rogner"
+                  className="max-w-none absolute pointer-events-none origin-center"
+                  style={{
+                    transform: `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg) scale(${zoom})`,
+                    // Base scale fitting shorter side to 256px
+                    width: "100%",
+                    height: "auto",
+                  }}
+                />
+              </div>
+
+              <p className="text-[10px] text-slate-500 dark:text-zinc-400 text-center leading-normal max-w-xs">
+                {"Glissez la photo pour la recentrer. Utilisez les commandes ci-dessous pour l'ajuster."}
+              </p>
+
+              {/* Controls */}
+              <div className="w-full space-y-4 px-2">
+                {/* Zoom control */}
+                <div className="space-y-1">
+                  <div className="flex justify-between items-center text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
+                    <span>Zoom</span>
+                    <span className="text-slate-700 dark:text-zinc-350">{Math.round(zoom * 100)}%</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <ZoomIn size={14} className="text-slate-400" />
+                    <input
+                      type="range"
+                      min="1"
+                      max="4"
+                      step="0.01"
+                      value={zoom}
+                      onChange={(e) => setZoom(parseFloat(e.target.value))}
+                      className="flex-1 h-1.5 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Rotation control */}
+                <div className="flex items-center justify-between gap-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setRotation((r) => (r + 90) % 360)}
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-800 text-xs font-bold text-slate-700 dark:text-zinc-300 transition-all"
+                  >
+                    <RotateCw size={13} />
+                    <span>Pivoter 90°</span>
+                  </button>
+                  <span className="text-[10px] font-bold text-slate-400">Orientation : {rotation}°</span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-2.5 w-full pt-2">
+                <button
+                  type="button"
+                  onClick={() => setCroppingImageSrc(null)}
+                  className="flex-1 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 dark:border-zinc-800 dark:hover:bg-zinc-800 text-slate-750 dark:text-zinc-300 text-xs font-bold transition-all"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCropSave}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white font-bold text-xs shadow-md transition-all"
+                >
+                  <Check size={14} />
+                  Valider la photo
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
