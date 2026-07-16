@@ -15,40 +15,40 @@ import { CVData, COLOR_THEMES } from "@/types/cv";
 Font.register({
   family: "Inter",
   fonts: [
-    { src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_y.ttf", fontWeight: "normal" },
-    { src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuDyfAZ9hjp-Ek-_y.ttf", fontWeight: "bold" },
+    { src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/inter/Inter_400Regular.ttf", fontWeight: "normal" },
+    { src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/inter/Inter_700Bold.ttf", fontWeight: "bold" },
   ]
 });
 
 Font.register({
   family: "Merriweather",
   fonts: [
-    { src: "https://fonts.gstatic.com/s/merriweather/v28/u-440qyZ1Y2bLpE93F65GxIB.ttf", fontWeight: "normal" },
-    { src: "https://fonts.gstatic.com/s/merriweather/v28/u-4adeqyZ1Y2bLpE93F65GbEadh4nFM.ttf", fontWeight: "bold" },
+    { src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/merriweather/Merriweather_400Regular.ttf", fontWeight: "normal" },
+    { src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/merriweather/Merriweather_700Bold.ttf", fontWeight: "bold" },
   ]
 });
 
 Font.register({
   family: "Fira Code",
   fonts: [
-    { src: "https://fonts.gstatic.com/s/firacode/v21/uIC54c2vpCwygOFtrHSFJmLF.ttf", fontWeight: "normal" },
-    { src: "https://fonts.gstatic.com/s/firacode/v21/uIC54c2vpCwygOFtrHSFJmLF.ttf", fontWeight: "bold" }
+    { src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/fira-code/FiraCode_400Regular.ttf", fontWeight: "normal" },
+    { src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/fira-code/FiraCode_700Bold.ttf", fontWeight: "bold" }
   ]
 });
 
 Font.register({
   family: "Montserrat",
   fonts: [
-    { src: "https://fonts.gstatic.com/s/montserrat/v25/JTUSjIg1_i6t8kCHKm459W1hyyTh89ZNpQ.ttf", fontWeight: "normal" },
-    { src: "https://fonts.gstatic.com/s/montserrat/v25/JTURjIg1_i6t8kCHKm45_dJE3gnD_vx3rCs.ttf", fontWeight: "bold" }
+    { src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/montserrat/Montserrat_400Regular.ttf", fontWeight: "normal" },
+    { src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/montserrat/Montserrat_700Bold.ttf", fontWeight: "bold" }
   ]
 });
 
 Font.register({
   family: "Playfair Display",
   fonts: [
-    { src: "https://fonts.gstatic.com/s/playfairdisplay/v30/nuFvD-vYSZ2x4nz1EF3q52zv311PtSE3oqITdB3tug.ttf", fontWeight: "normal" },
-    { src: "https://fonts.gstatic.com/s/playfairdisplay/v30/nuFvD-vYSZ2x4nz1EF3q52zv311PtSE3oqITdB3tu08.ttf", fontWeight: "bold" }
+    { src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/playfair-display/PlayfairDisplay_400Regular.ttf", fontWeight: "normal" },
+    { src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/playfair-display/PlayfairDisplay_700Bold.ttf", fontWeight: "bold" }
   ]
 });
 
