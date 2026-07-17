@@ -2,7 +2,7 @@
 
 import { useCVStore } from "@/lib/store";
 import { Langue, NiveauLangue } from "@/types/cv";
-import { Plus, Trash2, X, Sparkles, Languages } from "lucide-react";
+import { Plus, Trash2, X, Sparkles, Languages, Heart } from "lucide-react";
 
 const inputClass =
   "w-full bg-slate-50 dark:bg-zinc-800/30 border border-slate-200 dark:border-zinc-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 dark:text-zinc-100 placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:border-slate-900 focus:ring-4 focus:ring-slate-900/5 dark:focus:border-indigo-500 dark:focus:ring-indigo-500/10 transition-all duration-200";
@@ -31,7 +31,6 @@ export default function StepCompetencesLangues() {
 
   const addCompetence = (nom: string) => {
     if (!nom.trim()) return;
-    // Eviter les doublons
     if (cv.competences.some((c) => c.nom.toLowerCase() === nom.trim().toLowerCase())) return;
     setCV((c) => ({
       ...c,
@@ -64,6 +63,21 @@ export default function StepCompetencesLangues() {
     setCV((c) => ({
       ...c,
       langues: c.langues.filter((l) => l.id !== id),
+    }));
+
+  const addInteret = (nom: string) => {
+    if (!nom.trim()) return;
+    if ((cv.interets || []).some((i) => i.nom.toLowerCase() === nom.trim().toLowerCase())) return;
+    setCV((c) => ({
+      ...c,
+      interets: [...(c.interets || []), { id: crypto.randomUUID(), nom: nom.trim() }],
+    }));
+  };
+
+  const removeInteret = (id: string) =>
+    setCV((c) => ({
+      ...c,
+      interets: (c.interets || []).filter((i) => i.id !== id),
     }));
 
   return (
@@ -172,6 +186,52 @@ export default function StepCompetencesLangues() {
         >
           <Plus size={14} /> Ajouter une langue
         </button>
+      </div>
+
+      <hr className="border-slate-100 dark:border-zinc-850" />
+
+      {/* Interests / Centres d'intérêt */}
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+            <Heart size={18} className="text-indigo-500" /> {"Centres d'intérêt"}
+          </h2>
+          <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">
+            {"Ajoute tes centres d'intérêt, loisirs ou passions pour donner plus de relief à ton profil (standards internationaux)."}
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          <label className={labelClass}>{"Ajouter un centre d'intérêt (Appuie sur Entrée)"}</label>
+          <input
+            className={inputClass}
+            placeholder="ex: Photographie, Lecture, Voyages, Football, Bénévolat..."
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                const target = e.target as HTMLInputElement;
+                addInteret(target.value);
+                target.value = "";
+              }
+            }}
+          />
+
+          {(cv.interets || []).length > 0 && (
+            <div className="flex flex-wrap gap-2 p-3 bg-slate-50/50 dark:bg-zinc-900/20 border border-slate-100 dark:border-zinc-800/80 rounded-2xl min-h-[50px] items-center">
+              {(cv.interets || []).map((i) => (
+                <span
+                  key={i.id}
+                  onClick={() => removeInteret(i.id)}
+                  className="group flex items-center gap-1.5 text-xs font-bold bg-white text-slate-700 dark:bg-zinc-800 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700 pl-3 pr-2 py-1.5 rounded-xl transition-all cursor-pointer hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-950/20 dark:hover:text-red-400 dark:hover:border-red-900/50"
+                  title="Supprimer ce centre d'intérêt"
+                >
+                  {i.nom}
+                  <X size={13} className="text-slate-400 group-hover:text-red-500 transition-colors" />
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

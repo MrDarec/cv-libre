@@ -104,8 +104,8 @@ export default function Professionnel({ cv }: { cv: CVData }) {
           </section>
         )}
 
-        {/* Competences & Langues in 2 Columns */}
-        <div className="grid grid-cols-2 gap-8 pt-2">
+        {/* Competences & Langues in 3 Columns */}
+        <div className="grid grid-cols-3 gap-8 pt-2">
           {cv.competences.length > 0 && (
             <section>
               <h2 className="font-bold uppercase tracking-wider mb-2 text-slate-900 border-b border-slate-200 pb-1 cv-text-subtitle">
@@ -137,6 +137,24 @@ export default function Professionnel({ cv }: { cv: CVData }) {
                   </li>
                 ))}
               </ul>
+            </section>
+          )}
+
+          {cv.interets && cv.interets.length > 0 && (
+            <section>
+              <h2 className="font-bold uppercase tracking-wider mb-2 text-slate-900 border-b border-slate-200 pb-1 cv-text-subtitle">
+                {"Centres d'intérêt"}
+              </h2>
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {cv.interets.map((i) => (
+                  <span
+                    key={i.id}
+                    className="px-2.5 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200/60"
+                  >
+                    {i.nom}
+                  </span>
+                ))}
+              </div>
             </section>
           )}
         </div>

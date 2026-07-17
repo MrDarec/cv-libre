@@ -76,6 +76,22 @@ export default function Moderne({ cv }: { cv: CVData }) {
             </ul>
           </div>
         )}
+
+        {cv.interets && cv.interets.length > 0 && (
+          <div className="mt-8">
+            <h2
+              className="text-xs font-bold uppercase tracking-wider mb-2"
+              style={{ color: accentColor }}
+            >
+              {"Centres d'intérêt"}
+            </h2>
+            <ul className="text-xs space-y-1 text-neutral-200">
+              {cv.interets.map((i) => (
+                <li key={i.id}>{i.nom}</li>
+              ))}
+            </ul>
+          </div>
+        )}
       </aside>
 
       {/* Colonne principale */}

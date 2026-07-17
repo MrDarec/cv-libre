@@ -101,7 +101,7 @@ export default function Minimaliste({ cv }: { cv: CVData }) {
           )}
 
           {/* Competences & Langues side-by-side */}
-          <div className="grid grid-cols-2 gap-10 pt-4">
+          <div className="grid grid-cols-3 gap-8 pt-4">
             {cv.competences.length > 0 && (
               <section>
                 <h3 className="text-[9pt] uppercase tracking-widest font-bold border-b border-neutral-100 pb-1 mb-2.5 text-neutral-400">
@@ -119,6 +119,16 @@ export default function Minimaliste({ cv }: { cv: CVData }) {
                 </h3>
                 <p className="text-neutral-600 leading-relaxed cv-text-body">
                   {cv.langues.map((l) => `${l.nom} (${l.niveau})`).join("  ·  ")}
+                </p>
+              </section>
+            )}
+            {cv.interets && cv.interets.length > 0 && (
+              <section>
+                <h3 className="text-[9pt] uppercase tracking-widest font-bold border-b border-neutral-100 pb-1 mb-2.5 text-neutral-400">
+                  Intérêts
+                </h3>
+                <p className="text-neutral-600 leading-relaxed cv-text-body">
+                  {cv.interets.map((i) => i.nom).join("  ·  ")}
                 </p>
               </section>
             )}

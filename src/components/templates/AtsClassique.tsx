@@ -112,7 +112,7 @@ export default function AtsClassique({ cv }: { cv: CVData }) {
         </section>
       )}
 
-      <div className="grid grid-cols-2 gap-8">
+      <div className="grid grid-cols-3 gap-8">
         {cv.competences.length > 0 && (
           <section>
             <h2 className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: accentColor }}>
@@ -130,6 +130,16 @@ export default function AtsClassique({ cv }: { cv: CVData }) {
             </h2>
             <p className="text-sm">
               {cv.langues.map((l) => `${l.nom} (${l.niveau})`).join(" · ")}
+            </p>
+          </section>
+        )}
+        {cv.interets && cv.interets.length > 0 && (
+          <section>
+            <h2 className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: accentColor }}>
+              {"Centres d'intérêt"}
+            </h2>
+            <p className="text-sm">
+              {cv.interets.map((i) => i.nom).join(" · ")}
             </p>
           </section>
         )}

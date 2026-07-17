@@ -24,6 +24,11 @@ export interface Competence {
   nom: string;
 }
 
+export interface Interet {
+  id: string;
+  nom: string;
+}
+
 export type NiveauLangue =
   | "notions"
   | "intermediaire"
@@ -99,6 +104,7 @@ export interface CVData {
   formations: Formation[];
   competences: Competence[];
   langues: Langue[];
+  interets: Interet[];
 }
 
 export const emptyCV = (): CVData => ({
@@ -122,6 +128,7 @@ export const emptyCV = (): CVData => ({
   formations: [],
   competences: [],
   langues: [],
+  interets: [],
 });
 
 export const NORME_LABELS: Record<Norme, string> = {

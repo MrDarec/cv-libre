@@ -182,6 +182,25 @@ export default function Creatif({ cv }: { cv: CVData }) {
                 </div>
               </section>
             )}
+
+            {/* Centres d'intérêt */}
+            {cv.interets && cv.interets.length > 0 && (
+              <section className="space-y-2">
+                <h2 className="font-bold uppercase tracking-wider text-slate-900 pb-1 border-b border-slate-200 cv-text-subtitle">
+                  {"Centres d'intérêt"}
+                </h2>
+                <div className="flex flex-wrap gap-1">
+                  {cv.interets.map((i) => (
+                    <span
+                      key={i.id}
+                      className="px-2 py-0.5 rounded text-[10px] font-bold bg-white text-slate-700 border border-slate-200 shadow-sm"
+                    >
+                      {i.nom}
+                    </span>
+                  ))}
+                </div>
+              </section>
+            )}
           </aside>
         </div>
       </div>

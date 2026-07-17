@@ -231,6 +231,15 @@ function ClassiquePDF({ cv, accentColor, fontName, sizeMult }: { cv: CVData; acc
           </View>
         )}
       </View>
+
+      {cv.interets && cv.interets.length > 0 && (
+        <View style={[styles.section, { marginTop: 10 }]}>
+          <Text style={[styles.sectionTitle, { color: accentColor }]}>{"Centres d'intérêt"}</Text>
+          <Text style={{ fontSize: 9 * sizeMult, lineHeight: 1.4 }}>
+            {cv.interets.map((i) => i.nom).join("  ·  ")}
+          </Text>
+        </View>
+      )}
     </Page>
   );
 }
@@ -411,6 +420,17 @@ function ModernePDF({ cv, accentColor, primaryColor, fontName, sizeMult }: { cv:
             {cv.langues.map((l) => (
               <Text key={l.id} style={styles.asideItem}>
                 {l.nom} ({l.niveau})
+              </Text>
+            ))}
+          </View>
+        )}
+
+        {cv.interets && cv.interets.length > 0 && (
+          <View style={{ marginTop: 10 }}>
+            <Text style={[styles.asideSectionTitle, { color: accentColor }]}>{"Centres d'intérêt"}</Text>
+            {cv.interets.map((i) => (
+              <Text key={i.id} style={styles.asideItem}>
+                • {i.nom}
               </Text>
             ))}
           </View>
@@ -682,6 +702,15 @@ function MinimalistePDF({ cv, accentColor, fontName, sizeMult }: { cv: CVData; a
         )}
       </View>
 
+      {cv.interets && cv.interets.length > 0 && (
+        <View style={{ marginTop: 10 }}>
+          <Text style={[styles.divider, { textAlign: "left" }]}>Intérêts</Text>
+          <Text style={{ fontSize: 8.5 * sizeMult, color: "#52525b", lineHeight: 1.4 }}>
+            {cv.interets.map((i) => i.nom).join("  ·  ")}
+          </Text>
+        </View>
+      )}
+
       {infos.inclurePhoto && infos.photoUrl && (
         <View style={{ alignItems: "center", marginTop: 15 }}>
           <Image src={infos.photoUrl} style={styles.photo} />
@@ -916,6 +945,17 @@ function ProfessionnelPDF({ cv, accentColor, fontName, sizeMult }: { cv: CVData;
           </View>
         )}
       </View>
+
+      {cv.interets && cv.interets.length > 0 && (
+        <View style={{ marginTop: 10 }}>
+          <Text style={styles.sectionTitle}>{"Centres d'intérêt"}</Text>
+          <View style={styles.skillsContainer}>
+            {cv.interets.map((i) => (
+              <Text key={i.id} style={styles.skillBadge}>{i.nom}</Text>
+            ))}
+          </View>
+        </View>
+      )}
     </Page>
   );
 }
@@ -1238,6 +1278,17 @@ function CreatifPDF({ cv, accentColor, primaryColor, fontName, sizeMult }: { cv:
                   <Text style={{ color: "#64748b", fontSize: 8 * sizeMult }}>{l.niveau}</Text>
                 </View>
               ))}
+            </View>
+          )}
+
+          {cv.interets && cv.interets.length > 0 && (
+            <View style={styles.section}>
+              <Text style={styles.sidebarTitle}>Intérêts</Text>
+              <View style={styles.badgeContainer}>
+                {cv.interets.map((i) => (
+                  <Text key={i.id} style={styles.badge}>{i.nom}</Text>
+                ))}
+              </View>
             </View>
           )}
         </View>
