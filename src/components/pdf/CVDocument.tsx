@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Document,
   Page,
@@ -16,6 +17,7 @@ Font.register({
   family: "Inter",
   fonts: [
     { src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/inter/Inter_400Regular.ttf", fontWeight: "normal" },
+    { src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/inter/400Regular_Italic/Inter_400Regular_Italic.ttf", fontWeight: "normal", fontStyle: "italic" },
     { src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/inter/Inter_700Bold.ttf", fontWeight: "bold" },
   ]
 });
@@ -24,6 +26,7 @@ Font.register({
   family: "Merriweather",
   fonts: [
     { src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/merriweather/Merriweather_400Regular.ttf", fontWeight: "normal" },
+    { src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/merriweather/400Regular_Italic/Merriweather_400Regular_Italic.ttf", fontWeight: "normal", fontStyle: "italic" },
     { src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/merriweather/Merriweather_700Bold.ttf", fontWeight: "bold" },
   ]
 });
@@ -32,6 +35,7 @@ Font.register({
   family: "Fira Code",
   fonts: [
     { src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/fira-code/FiraCode_400Regular.ttf", fontWeight: "normal" },
+    { src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/fira-code/FiraCode_400Regular.ttf", fontWeight: "normal", fontStyle: "italic" }, // Fallback to regular since Fira Code has no italic
     { src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/fira-code/FiraCode_700Bold.ttf", fontWeight: "bold" }
   ]
 });
@@ -40,6 +44,7 @@ Font.register({
   family: "Montserrat",
   fonts: [
     { src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/montserrat/Montserrat_400Regular.ttf", fontWeight: "normal" },
+    { src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/montserrat/400Regular_Italic/Montserrat_400Regular_Italic.ttf", fontWeight: "normal", fontStyle: "italic" },
     { src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/montserrat/Montserrat_700Bold.ttf", fontWeight: "bold" }
   ]
 });
@@ -48,6 +53,7 @@ Font.register({
   family: "Playfair Display",
   fonts: [
     { src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/playfair-display/PlayfairDisplay_400Regular.ttf", fontWeight: "normal" },
+    { src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/playfair-display/400Regular_Italic/PlayfairDisplay_400Regular_Italic.ttf", fontWeight: "normal", fontStyle: "italic" },
     { src: "https://cdn.jsdelivr.net/npm/@expo-google-fonts/playfair-display/PlayfairDisplay_700Bold.ttf", fontWeight: "bold" }
   ]
 });
