@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "CV Libre — Éditions Cypher",
+  title: "CV Libre — Tous droits réservés à INNOVATIK",
   description:
     "Créez un CV professionnel, conforme aux normes ATS, gratuitement et sans compte. Projet open source.",
 };

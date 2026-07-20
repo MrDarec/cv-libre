@@ -1324,7 +1324,7 @@ export default function CVDocument({ cv }: { cv: CVData }) {
   return (
     <Document
       title={`CV - ${cv.infos.prenom || "cv"} ${cv.infos.nom || "libre"}`}
-      author="CV Libre - Éditions Cypher"
+      author="CV Libre - Tous droits réservés à INNOVATIK"
     >
       {templateId === "moderne" ? (
         <ModernePDF cv={cv} accentColor={accentColor} primaryColor={primaryColor} fontName={fontName} sizeMult={sizeMult} />
