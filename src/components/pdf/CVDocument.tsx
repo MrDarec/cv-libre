@@ -178,7 +178,7 @@ function ClassiquePDF({ cv, accentColor, fontName, sizeMult }: { cv: CVData; acc
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: accentColor }]}>Expérience professionnelle</Text>
           {cv.experiences.map((exp) => (
-            <View key={exp.id} style={styles.expBlock}>
+            <View key={exp.id} style={styles.expBlock} wrap={false}>
               <View style={styles.expRow}>
                 <Text style={styles.expTitle}>
                   {exp.poste}
@@ -205,7 +205,7 @@ function ClassiquePDF({ cv, accentColor, fontName, sizeMult }: { cv: CVData; acc
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: accentColor }]}>Formation</Text>
           {cv.formations.map((f) => (
-            <View key={f.id} style={styles.expBlock}>
+            <View key={f.id} style={styles.expBlock} wrap={false}>
               <View style={styles.expRow}>
                 <Text style={{ fontSize: 9.5 * sizeMult, fontFamily: fontName, fontWeight: "bold", color: "#111827" }}>
                   {f.diplome}
@@ -246,6 +246,12 @@ function ClassiquePDF({ cv, accentColor, fontName, sizeMult }: { cv: CVData; acc
           </Text>
         </View>
       )}
+
+      <Text
+        style={{ position: "absolute", bottom: 15, right: 40, fontSize: 8, color: "#9ca3af" }}
+        render={({ pageNumber, totalPages }) => (totalPages > 1 ? `${pageNumber} / ${totalPages}` : "")}
+        fixed
+      />
     </Page>
   );
 }
@@ -258,13 +264,18 @@ function ModernePDF({ cv, accentColor, primaryColor, fontName, sizeMult }: { cv:
 
   const styles = StyleSheet.create({
     page: {
-      flexDirection: "row",
       fontFamily: fontName,
       fontSize: 9.5 * sizeMult,
       color: "#374151",
       backgroundColor: "#ffffff",
+      padding: 0,
+      position: "relative",
     },
     aside: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      bottom: 0,
       width: "32%",
       backgroundColor: primaryColor,
       color: "#ffffff",
@@ -272,8 +283,10 @@ function ModernePDF({ cv, accentColor, primaryColor, fontName, sizeMult }: { cv:
       flexDirection: "column",
     },
     main: {
+      marginLeft: "32%",
       width: "68%",
-      padding: 30,
+      padding: 28,
+      paddingBottom: 35,
     },
     photo: {
       width: 75,
@@ -384,7 +397,7 @@ function ModernePDF({ cv, accentColor, primaryColor, fontName, sizeMult }: { cv:
 
   return (
     <Page size="A4" style={styles.page}>
-      <View style={styles.aside}>
+      <View style={styles.aside} fixed>
         {infos.inclurePhoto && infos.photoUrl && (
           <Image src={infos.photoUrl} style={styles.photo} />
         )}
@@ -455,7 +468,7 @@ function ModernePDF({ cv, accentColor, primaryColor, fontName, sizeMult }: { cv:
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: accentColor }]}>Expérience professionnelle</Text>
             {cv.experiences.map((exp) => (
-              <View key={exp.id} style={styles.expBlock}>
+              <View key={exp.id} style={styles.expBlock} wrap={false}>
                 <View style={styles.expHeader}>
                   <Text style={[styles.expTitle, { color: primaryColor }]}>
                     {exp.poste}
@@ -482,7 +495,7 @@ function ModernePDF({ cv, accentColor, primaryColor, fontName, sizeMult }: { cv:
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: accentColor }]}>Formation</Text>
             {cv.formations.map((f) => (
-              <View key={f.id} style={{ marginBottom: 8 }}>
+              <View key={f.id} style={{ marginBottom: 8 }} wrap={false}>
                 <View style={styles.formRow}>
                   <Text style={[styles.formTitle, { color: primaryColor }]}>{f.diplome}</Text>
                   <Text style={styles.expDate}>{f.annee}</Text>
@@ -499,6 +512,12 @@ function ModernePDF({ cv, accentColor, primaryColor, fontName, sizeMult }: { cv:
           </View>
         )}
       </View>
+
+      <Text
+        style={{ position: "absolute", bottom: 15, right: 28, fontSize: 8, color: "#9ca3af" }}
+        render={({ pageNumber, totalPages }) => (totalPages > 1 ? `${pageNumber} / ${totalPages}` : "")}
+        fixed
+      />
     </Page>
   );
 }
@@ -649,7 +668,7 @@ function MinimalistePDF({ cv, accentColor, fontName, sizeMult }: { cv: CVData; a
         <View style={styles.section}>
           <Text style={styles.divider}>Expérience</Text>
           {cv.experiences.map((exp) => (
-            <View key={exp.id} style={styles.expBlock}>
+            <View key={exp.id} style={styles.expBlock} wrap={false}>
               <View style={styles.expHeader}>
                 <Text style={styles.expTitle}>
                   {exp.poste}  ·  <Text style={{ fontWeight: "normal", color: "#52525b" }}>{exp.entreprise}</Text>
@@ -675,7 +694,7 @@ function MinimalistePDF({ cv, accentColor, fontName, sizeMult }: { cv: CVData; a
         <View style={styles.section}>
           <Text style={styles.divider}>Formation</Text>
           {cv.formations.map((f) => (
-            <View key={f.id} style={{ marginBottom: 6 }}>
+            <View key={f.id} style={{ marginBottom: 6 }} wrap={false}>
               <View style={styles.expHeader}>
                 <Text style={styles.expTitle}>
                   {f.diplome}
@@ -722,6 +741,12 @@ function MinimalistePDF({ cv, accentColor, fontName, sizeMult }: { cv: CVData; a
           <Image src={infos.photoUrl} style={styles.photo} />
         </View>
       )}
+
+      <Text
+        style={{ position: "absolute", bottom: 15, right: 50, fontSize: 8, color: "#a1a1aa" }}
+        render={({ pageNumber, totalPages }) => (totalPages > 1 ? `${pageNumber} / ${totalPages}` : "")}
+        fixed
+      />
     </Page>
   );
 }
@@ -886,7 +911,7 @@ function ProfessionnelPDF({ cv, accentColor, fontName, sizeMult }: { cv: CVData;
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Expérience Professionnelle</Text>
           {cv.experiences.map((exp) => (
-            <View key={exp.id} style={styles.expBlock}>
+            <View key={exp.id} style={styles.expBlock} wrap={false}>
               <View style={styles.expHeader}>
                 <Text style={styles.expTitle}>
                   {exp.poste} <Text style={{ fontWeight: "normal", color: "#475569" }}>— {exp.entreprise}</Text>
@@ -912,7 +937,7 @@ function ProfessionnelPDF({ cv, accentColor, fontName, sizeMult }: { cv: CVData;
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Formation et Diplômes</Text>
           {cv.formations.map((f) => (
-            <View key={f.id} style={{ marginBottom: 6 }}>
+            <View key={f.id} style={{ marginBottom: 6 }} wrap={false}>
               <View style={styles.expHeader}>
                 <Text style={styles.expTitle}>
                   {f.diplome}
@@ -962,6 +987,12 @@ function ProfessionnelPDF({ cv, accentColor, fontName, sizeMult }: { cv: CVData;
           </View>
         </View>
       )}
+
+      <Text
+        style={{ position: "absolute", bottom: 15, right: 40, fontSize: 8, color: "#94a3b8" }}
+        render={({ pageNumber, totalPages }) => (totalPages > 1 ? `${pageNumber} / ${totalPages}` : "")}
+        fixed
+      />
     </Page>
   );
 }
@@ -1177,7 +1208,7 @@ function CreatifPDF({ cv, accentColor, primaryColor, fontName, sizeMult }: { cv:
                 <Text style={styles.sectionTitle}>Expériences</Text>
               </View>
               {cv.experiences.map((exp) => (
-                <View key={exp.id} style={styles.expBlock}>
+                <View key={exp.id} style={styles.expBlock} wrap={false}>
                   <View style={styles.expHeader}>
                     <Text style={styles.expTitle}>{exp.poste}</Text>
                     <Text style={styles.expDate}>
@@ -1206,7 +1237,7 @@ function CreatifPDF({ cv, accentColor, primaryColor, fontName, sizeMult }: { cv:
                 <Text style={styles.sectionTitle}>Formation</Text>
               </View>
               {cv.formations.map((f) => (
-                <View key={f.id} style={{ marginBottom: 6 }}>
+                <View key={f.id} style={{ marginBottom: 6 }} wrap={false}>
                   <View style={styles.expHeader}>
                     <Text style={[styles.expTitle, { fontSize: 8.5 * sizeMult }]}>
                       {f.diplome}
@@ -1301,6 +1332,11 @@ function CreatifPDF({ cv, accentColor, primaryColor, fontName, sizeMult }: { cv:
       </View>
 
       <View style={styles.footerLine} />
+      <Text
+        style={{ position: "absolute", bottom: 12, right: 24, fontSize: 8, color: "#94a3b8" }}
+        render={({ pageNumber, totalPages }) => (totalPages > 1 ? `${pageNumber} / ${totalPages}` : "")}
+        fixed
+      />
     </Page>
   );
 }

@@ -893,7 +893,7 @@ export default function Home() {
 
           {/* CV A4 Sheet Canvas Area */}
           <div className="flex-1 flex justify-center items-start overflow-x-auto py-2 xl:py-4">
-            <div className="w-[210mm] h-[297mm] origin-top scale-[0.45] xs:scale-[0.55] sm:scale-[0.7] md:scale-[0.8] lg:scale-[0.85] xl:scale-[0.6] 2xl:scale-[0.72] shadow-xl dark:shadow-2xl dark:shadow-black/50 border border-slate-200 dark:border-zinc-800 rounded bg-white transition-all duration-300">
+            <div className="w-[210mm] min-h-[297mm] h-auto origin-top scale-[0.45] xs:scale-[0.55] sm:scale-[0.7] md:scale-[0.8] lg:scale-[0.85] xl:scale-[0.6] 2xl:scale-[0.72] shadow-xl dark:shadow-2xl dark:shadow-black/50 border border-slate-200 dark:border-zinc-800 rounded bg-white transition-all duration-300">
               <CVPreview cv={cv} />
             </div>
           </div>

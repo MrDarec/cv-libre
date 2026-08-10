@@ -9,7 +9,7 @@ export default function Creatif({ cv }: { cv: CVData }) {
   const primaryColor = activeTheme.primary;
 
   return (
-    <div className="bg-white text-slate-800 w-[210mm] min-h-[297mm] flex flex-col justify-between cv-text-body overflow-hidden">
+    <div className="bg-white text-slate-800 w-[210mm] min-h-[297mm] flex flex-col justify-between cv-text-body">
       <div>
         {/* Banner Header */}
         <header className="p-10 text-white flex justify-between items-center gap-6" style={{ backgroundColor: primaryColor }}>

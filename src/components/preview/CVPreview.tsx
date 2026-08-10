@@ -28,7 +28,7 @@ export default function CVPreview({ cv }: { cv: CVData }) {
   const sizeClass = `cv-size-${cv.fontSize || "md"}`;
 
   return (
-    <div className={`${fontClass} ${sizeClass} w-full h-full rounded overflow-hidden`}>
+    <div className={`${fontClass} ${sizeClass} w-full min-h-full rounded`}>
       {renderTemplate()}
     </div>
   );
