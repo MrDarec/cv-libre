@@ -122,10 +122,11 @@ function ClassiquePDF({ cv, accentColor, fontName, sizeMult }: { cv: CVData; acc
     expRow: {
       flexDirection: "row",
       justifyContent: "space-between",
+      alignItems: "baseline",
       marginBottom: 2,
     },
-    expTitle: { fontFamily: fontName, fontWeight: "bold", fontSize: 10 * sizeMult, color: "#111827" },
-    expDate: { fontSize: 8.5 * sizeMult, color: "#6b7280" },
+    expTitle: { fontFamily: fontName, fontWeight: "bold", fontSize: 10 * sizeMult, color: "#111827", flex: 1, marginRight: 8 },
+    expDate: { fontSize: 8.5 * sizeMult, color: "#6b7280", flexShrink: 0 },
     expLieu: { fontSize: 8.5 * sizeMult, color: "#6b7280", marginBottom: 2 },
     bullet: { fontSize: 9 * sizeMult, color: "#4b5563", marginBottom: 2, marginLeft: 8 },
     expBlock: { marginBottom: 10 },
@@ -219,7 +220,7 @@ function ClassiquePDF({ cv, accentColor, fontName, sizeMult }: { cv: CVData; acc
         </View>
       )}
 
-      <View style={styles.twoCol}>
+      <View style={styles.twoCol} wrap={false}>
         {cv.competences.length > 0 && (
           <View style={styles.col}>
             <Text style={[styles.sectionTitle, { color: accentColor }]}>Compétences</Text>
@@ -239,7 +240,7 @@ function ClassiquePDF({ cv, accentColor, fontName, sizeMult }: { cv: CVData; acc
       </View>
 
       {cv.interets && cv.interets.length > 0 && (
-        <View style={[styles.section, { marginTop: 10 }]}>
+        <View style={[styles.section, { marginTop: 10 }]} wrap={false}>
           <Text style={[styles.sectionTitle, { color: accentColor }]}>{"Centres d'intérêt"}</Text>
           <Text style={{ fontSize: 9 * sizeMult, lineHeight: 1.4 }}>
             {cv.interets.map((i) => i.nom).join("  ·  ")}
@@ -268,38 +269,34 @@ function ModernePDF({ cv, accentColor, primaryColor, fontName, sizeMult }: { cv:
       fontSize: 9.5 * sizeMult,
       color: "#374151",
       backgroundColor: "#ffffff",
-      padding: 0,
-      position: "relative",
+      paddingTop: 28,
+      paddingBottom: 35,
+      paddingLeft: 195,
+      paddingRight: 28,
     },
     aside: {
       position: "absolute",
       top: 0,
       left: 0,
-      bottom: 0,
-      width: "32%",
+      width: 175,
+      height: 842,
       backgroundColor: primaryColor,
       color: "#ffffff",
-      padding: 24,
+      padding: 20,
       flexDirection: "column",
     },
-    main: {
-      marginLeft: "32%",
-      width: "68%",
-      padding: 28,
-      paddingBottom: 35,
-    },
     photo: {
-      width: 75,
-      height: 75,
-      borderRadius: 75 / 2,
+      width: 70,
+      height: 70,
+      borderRadius: 35,
       borderWidth: 2,
       borderColor: accentColor,
-      marginBottom: 16,
+      marginBottom: 14,
       objectFit: "cover",
       alignSelf: "center",
     },
     asideName: {
-      fontSize: 16 * sizeMult,
+      fontSize: 15 * sizeMult,
       fontFamily: fontName,
       fontWeight: "bold",
       color: "#ffffff",
@@ -307,45 +304,45 @@ function ModernePDF({ cv, accentColor, primaryColor, fontName, sizeMult }: { cv:
       textAlign: "center",
     },
     asideTitle: {
-      fontSize: 9.5 * sizeMult,
+      fontSize: 9 * sizeMult,
       marginTop: 4,
       fontWeight: "bold",
       textTransform: "uppercase",
       letterSpacing: 0.5,
       textAlign: "center",
-      marginBottom: 20,
+      marginBottom: 16,
     },
     asideSectionTitle: {
-      fontSize: 9 * sizeMult,
+      fontSize: 8.5 * sizeMult,
       fontWeight: "bold",
       textTransform: "uppercase",
       letterSpacing: 1,
-      marginTop: 15,
-      marginBottom: 8,
+      marginTop: 12,
+      marginBottom: 6,
       borderBottomWidth: 1,
       borderBottomColor: "rgba(255,255,255,0.15)",
-      paddingBottom: 3,
+      paddingBottom: 2,
     },
     asideContactItem: {
       fontSize: 7.5 * sizeMult,
       color: "#d1d5db",
-      marginBottom: 6,
+      marginBottom: 5,
       lineHeight: 1.3,
     },
     asideItem: {
       fontSize: 8 * sizeMult,
       color: "#e5e7eb",
-      marginBottom: 4,
+      marginBottom: 3.5,
     },
     section: {
-      marginBottom: 16,
+      marginBottom: 14,
     },
     sectionTitle: {
       fontSize: 10 * sizeMult,
       fontWeight: "bold",
       textTransform: "uppercase",
       letterSpacing: 1,
-      marginBottom: 10,
+      marginBottom: 8,
       borderBottomWidth: 1,
       borderBottomColor: "#f3f4f6",
       paddingBottom: 3,
@@ -367,10 +364,13 @@ function ModernePDF({ cv, accentColor, primaryColor, fontName, sizeMult }: { cv:
       fontSize: 9.5 * sizeMult,
       fontWeight: "bold",
       color: "#111827",
+      flex: 1,
+      marginRight: 8,
     },
     expDate: {
       fontSize: 8 * sizeMult,
       color: "#6b7280",
+      flexShrink: 0,
     },
     expLieu: {
       fontSize: 8 * sizeMult,
@@ -392,6 +392,8 @@ function ModernePDF({ cv, accentColor, primaryColor, fontName, sizeMult }: { cv:
     formTitle: {
       fontSize: 9 * sizeMult,
       fontWeight: "bold",
+      flex: 1,
+      marginRight: 8,
     },
   });
 
@@ -434,18 +436,18 @@ function ModernePDF({ cv, accentColor, primaryColor, fontName, sizeMult }: { cv:
         )}
 
         {cv.langues.length > 0 && (
-          <View style={{ marginTop: 10 }}>
+          <View style={{ marginTop: 6 }}>
             <Text style={[styles.asideSectionTitle, { color: accentColor }]}>Langues</Text>
             {cv.langues.map((l) => (
               <Text key={l.id} style={styles.asideItem}>
-                {l.nom} ({l.niveau})
+                • {l.nom} ({l.niveau})
               </Text>
             ))}
           </View>
         )}
 
         {cv.interets && cv.interets.length > 0 && (
-          <View style={{ marginTop: 10 }}>
+          <View style={{ marginTop: 6 }}>
             <Text style={[styles.asideSectionTitle, { color: accentColor }]}>{"Centres d'intérêt"}</Text>
             {cv.interets.map((i) => (
               <Text key={i.id} style={styles.asideItem}>
@@ -456,62 +458,60 @@ function ModernePDF({ cv, accentColor, primaryColor, fontName, sizeMult }: { cv:
         )}
       </View>
 
-      <View style={styles.main}>
-        {cv.resume && (
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: accentColor }]}>Profil</Text>
-            <Text style={styles.resumeText}>{cv.resume}</Text>
-          </View>
-        )}
+      {cv.resume && (
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: accentColor }]}>Profil</Text>
+          <Text style={styles.resumeText}>{cv.resume}</Text>
+        </View>
+      )}
 
-        {cv.experiences.length > 0 && (
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: accentColor }]}>Expérience professionnelle</Text>
-            {cv.experiences.map((exp) => (
-              <View key={exp.id} style={styles.expBlock} wrap={false}>
-                <View style={styles.expHeader}>
-                  <Text style={[styles.expTitle, { color: primaryColor }]}>
-                    {exp.poste}
-                    {exp.entreprise ? ` — ${exp.entreprise}` : ""}
-                  </Text>
-                  <Text style={styles.expDate}>
-                    {exp.debut} – {exp.enCours ? "présent" : exp.fin}
-                  </Text>
-                </View>
-                {exp.lieu ? <Text style={styles.expLieu}>{exp.lieu}</Text> : null}
-                {exp.bullets
-                  .filter((b) => b.trim())
-                  .map((b, i) => (
-                    <Text key={i} style={styles.bullet}>
-                      • {b}
-                    </Text>
-                  ))}
+      {cv.experiences.length > 0 && (
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: accentColor }]}>Expérience professionnelle</Text>
+          {cv.experiences.map((exp) => (
+            <View key={exp.id} style={styles.expBlock} wrap={false}>
+              <View style={styles.expHeader}>
+                <Text style={[styles.expTitle, { color: primaryColor }]}>
+                  {exp.poste}
+                  {exp.entreprise ? ` — ${exp.entreprise}` : ""}
+                </Text>
+                <Text style={styles.expDate}>
+                  {exp.debut} – {exp.enCours ? "présent" : exp.fin}
+                </Text>
               </View>
-            ))}
-          </View>
-        )}
+              {exp.lieu ? <Text style={styles.expLieu}>{exp.lieu}</Text> : null}
+              {exp.bullets
+                .filter((b) => b.trim())
+                .map((b, i) => (
+                  <Text key={i} style={styles.bullet}>
+                    • {b}
+                  </Text>
+                ))}
+            </View>
+          ))}
+        </View>
+      )}
 
-        {cv.formations.length > 0 && (
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: accentColor }]}>Formation</Text>
-            {cv.formations.map((f) => (
-              <View key={f.id} style={{ marginBottom: 8 }} wrap={false}>
-                <View style={styles.formRow}>
-                  <Text style={[styles.formTitle, { color: primaryColor }]}>{f.diplome}</Text>
-                  <Text style={styles.expDate}>{f.annee}</Text>
-                </View>
-                {f.etablissement || f.lieu ? (
-                  <Text style={styles.expLieu}>
-                    {f.etablissement}
-                    {f.etablissement && f.lieu ? `, ` : ""}
-                    {f.lieu}
-                  </Text>
-                ) : null}
+      {cv.formations.length > 0 && (
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: accentColor }]}>Formation</Text>
+          {cv.formations.map((f) => (
+            <View key={f.id} style={{ marginBottom: 8 }} wrap={false}>
+              <View style={styles.formRow}>
+                <Text style={[styles.formTitle, { color: primaryColor }]}>{f.diplome}</Text>
+                <Text style={styles.expDate}>{f.annee}</Text>
               </View>
-            ))}
-          </View>
-        )}
-      </View>
+              {f.etablissement || f.lieu ? (
+                <Text style={styles.expLieu}>
+                  {f.etablissement}
+                  {f.etablissement && f.lieu ? `, ` : ""}
+                  {f.lieu}
+                </Text>
+              ) : null}
+            </View>
+          ))}
+        </View>
+      )}
 
       <Text
         style={{ position: "absolute", bottom: 15, right: 28, fontSize: 8, color: "#9ca3af" }}
@@ -601,10 +601,13 @@ function MinimalistePDF({ cv, accentColor, fontName, sizeMult }: { cv: CVData; a
       fontSize: 9.5 * sizeMult,
       fontWeight: "bold",
       color: "#18181b",
+      flex: 1,
+      marginRight: 8,
     },
     expDate: {
       fontSize: 8 * sizeMult,
       color: "#71717a",
+      flexShrink: 0,
     },
     expLieu: {
       fontSize: 8 * sizeMult,
@@ -708,7 +711,7 @@ function MinimalistePDF({ cv, accentColor, fontName, sizeMult }: { cv: CVData; a
         </View>
       )}
 
-      <View style={styles.twoCol}>
+      <View style={styles.twoCol} wrap={false}>
         {cv.competences.length > 0 && (
           <View style={styles.col}>
             <Text style={[styles.divider, { textAlign: "left" }]}>Compétences</Text>
@@ -728,7 +731,7 @@ function MinimalistePDF({ cv, accentColor, fontName, sizeMult }: { cv: CVData; a
       </View>
 
       {cv.interets && cv.interets.length > 0 && (
-        <View style={{ marginTop: 10 }}>
+        <View style={{ marginTop: 10 }} wrap={false}>
           <Text style={[styles.divider, { textAlign: "left" }]}>Intérêts</Text>
           <Text style={{ fontSize: 8.5 * sizeMult, color: "#52525b", lineHeight: 1.4 }}>
             {cv.interets.map((i) => i.nom).join("  ·  ")}
@@ -825,11 +828,14 @@ function ProfessionnelPDF({ cv, accentColor, fontName, sizeMult }: { cv: CVData;
       fontSize: 9.5 * sizeMult,
       fontWeight: "bold",
       color: "#0f172a",
+      flex: 1,
+      marginRight: 8,
     },
     expDate: {
       fontSize: 8.5 * sizeMult,
       color: "#475569",
       fontWeight: "bold",
+      flexShrink: 0,
     },
     expLieu: {
       fontSize: 8.5 * sizeMult,
@@ -951,7 +957,7 @@ function ProfessionnelPDF({ cv, accentColor, fontName, sizeMult }: { cv: CVData;
         </View>
       )}
 
-      <View style={styles.twoCol}>
+      <View style={styles.twoCol} wrap={false}>
         {cv.competences.length > 0 && (
           <View style={styles.col}>
             <Text style={styles.sectionTitle}>Compétences Clés</Text>
@@ -978,7 +984,7 @@ function ProfessionnelPDF({ cv, accentColor, fontName, sizeMult }: { cv: CVData;
       </View>
 
       {cv.interets && cv.interets.length > 0 && (
-        <View style={{ marginTop: 10 }}>
+        <View style={{ marginTop: 10 }} wrap={false}>
           <Text style={styles.sectionTitle}>{"Centres d'intérêt"}</Text>
           <View style={styles.skillsContainer}>
             {cv.interets.map((i) => (
@@ -1048,7 +1054,6 @@ function CreatifPDF({ cv, accentColor, primaryColor, fontName, sizeMult }: { cv:
     },
     bodyGrid: {
       flexDirection: "row",
-      flex: 1,
     },
     mainCol: {
       width: "65%",
@@ -1101,11 +1106,14 @@ function CreatifPDF({ cv, accentColor, primaryColor, fontName, sizeMult }: { cv:
       fontSize: 9 * sizeMult,
       fontWeight: "bold",
       color: "#0f172a",
+      flex: 1,
+      marginRight: 8,
     },
     expDate: {
       fontSize: 7.5 * sizeMult,
       color: "#94a3b8",
       fontWeight: "bold",
+      flexShrink: 0,
     },
     expCompany: {
       fontSize: 8 * sizeMult,

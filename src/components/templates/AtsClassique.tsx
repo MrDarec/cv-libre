@@ -112,38 +112,46 @@ export default function AtsClassique({ cv }: { cv: CVData }) {
         </section>
       )}
 
-      <div className="grid grid-cols-3 gap-8">
-        {cv.competences.length > 0 && (
-          <section>
-            <h2 className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: accentColor }}>
-              Compétences
-            </h2>
-            <p className="text-sm">
-              {cv.competences.map((c) => c.nom).join(" · ")}
-            </p>
-          </section>
-        )}
-        {cv.langues.length > 0 && (
-          <section>
-            <h2 className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: accentColor }}>
-              Langues
-            </h2>
-            <p className="text-sm">
-              {cv.langues.map((l) => `${l.nom} (${l.niveau})`).join(" · ")}
-            </p>
-          </section>
-        )}
-        {cv.interets && cv.interets.length > 0 && (
-          <section>
-            <h2 className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: accentColor }}>
-              {"Centres d'intérêt"}
-            </h2>
-            <p className="text-sm">
-              {cv.interets.map((i) => i.nom).join(" · ")}
-            </p>
-          </section>
-        )}
-      </div>
+      {([cv.competences.length > 0, cv.langues.length > 0, Boolean(cv.interets && cv.interets.length > 0)].some(Boolean)) && (
+        <div className={`grid gap-8 ${
+          [cv.competences.length > 0, cv.langues.length > 0, Boolean(cv.interets && cv.interets.length > 0)].filter(Boolean).length === 1
+            ? "grid-cols-1"
+            : [cv.competences.length > 0, cv.langues.length > 0, Boolean(cv.interets && cv.interets.length > 0)].filter(Boolean).length === 2
+            ? "grid-cols-2"
+            : "grid-cols-3"
+        }`}>
+          {cv.competences.length > 0 && (
+            <section>
+              <h2 className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: accentColor }}>
+                Compétences
+              </h2>
+              <p className="text-sm">
+                {cv.competences.map((c) => c.nom).join(" · ")}
+              </p>
+            </section>
+          )}
+          {cv.langues.length > 0 && (
+            <section>
+              <h2 className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: accentColor }}>
+                Langues
+              </h2>
+              <p className="text-sm">
+                {cv.langues.map((l) => `${l.nom} (${l.niveau})`).join(" · ")}
+              </p>
+            </section>
+          )}
+          {cv.interets && cv.interets.length > 0 && (
+            <section>
+              <h2 className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: accentColor }}>
+                {"Centres d'intérêt"}
+              </h2>
+              <p className="text-sm">
+                {cv.interets.map((i) => i.nom).join(" · ")}
+              </p>
+            </section>
+          )}
+        </div>
+      )}
     </div>
   );
 }

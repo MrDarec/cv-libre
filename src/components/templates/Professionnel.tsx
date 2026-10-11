@@ -104,60 +104,68 @@ export default function Professionnel({ cv }: { cv: CVData }) {
           </section>
         )}
 
-        {/* Competences & Langues in 3 Columns */}
-        <div className="grid grid-cols-3 gap-8 pt-2">
-          {cv.competences.length > 0 && (
-            <section>
-              <h2 className="font-bold uppercase tracking-wider mb-2 text-slate-900 border-b border-slate-200 pb-1 cv-text-subtitle">
-                Compétences Clés
-              </h2>
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                {cv.competences.map((c) => (
-                  <span
-                    key={c.id}
-                    className="px-2.5 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200/60"
-                  >
-                    {c.nom}
-                  </span>
-                ))}
-              </div>
-            </section>
-          )}
+        {/* Competences & Langues in Adaptive Columns */}
+        {([cv.competences.length > 0, cv.langues.length > 0, Boolean(cv.interets && cv.interets.length > 0)].some(Boolean)) && (
+          <div className={`grid gap-8 pt-2 ${
+            [cv.competences.length > 0, cv.langues.length > 0, Boolean(cv.interets && cv.interets.length > 0)].filter(Boolean).length === 1
+              ? "grid-cols-1"
+              : [cv.competences.length > 0, cv.langues.length > 0, Boolean(cv.interets && cv.interets.length > 0)].filter(Boolean).length === 2
+              ? "grid-cols-2"
+              : "grid-cols-3"
+          }`}>
+            {cv.competences.length > 0 && (
+              <section>
+                <h2 className="font-bold uppercase tracking-wider mb-2 text-slate-900 border-b border-slate-200 pb-1 cv-text-subtitle">
+                  Compétences Clés
+                </h2>
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {cv.competences.map((c) => (
+                    <span
+                      key={c.id}
+                      className="px-2.5 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200/60"
+                    >
+                      {c.nom}
+                    </span>
+                  ))}
+                </div>
+              </section>
+            )}
 
-          {cv.langues.length > 0 && (
-            <section>
-              <h2 className="font-bold uppercase tracking-wider mb-2 text-slate-900 border-b border-slate-200 pb-1 cv-text-subtitle">
-                Langues
-              </h2>
-              <ul className="space-y-1 pt-1 text-slate-700 cv-text-body">
-                {cv.langues.map((l) => (
-                  <li key={l.id} className="flex justify-between">
-                    <span className="font-semibold">{l.nom}</span>
-                    <span className="text-slate-500 text-xs italic">{l.niveau}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
+            {cv.langues.length > 0 && (
+              <section>
+                <h2 className="font-bold uppercase tracking-wider mb-2 text-slate-900 border-b border-slate-200 pb-1 cv-text-subtitle">
+                  Langues
+                </h2>
+                <ul className="space-y-1 pt-1 text-slate-700 cv-text-body">
+                  {cv.langues.map((l) => (
+                    <li key={l.id} className="flex justify-between">
+                      <span className="font-semibold">{l.nom}</span>
+                      <span className="text-slate-500 text-xs italic">{l.niveau}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
 
-          {cv.interets && cv.interets.length > 0 && (
-            <section>
-              <h2 className="font-bold uppercase tracking-wider mb-2 text-slate-900 border-b border-slate-200 pb-1 cv-text-subtitle">
-                {"Centres d'intérêt"}
-              </h2>
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                {cv.interets.map((i) => (
-                  <span
-                    key={i.id}
-                    className="px-2.5 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200/60"
-                  >
-                    {i.nom}
-                  </span>
-                ))}
-              </div>
-            </section>
-          )}
-        </div>
+            {cv.interets && cv.interets.length > 0 && (
+              <section>
+                <h2 className="font-bold uppercase tracking-wider mb-2 text-slate-900 border-b border-slate-200 pb-1 cv-text-subtitle">
+                  {"Centres d'intérêt"}
+                </h2>
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {cv.interets.map((i) => (
+                    <span
+                      key={i.id}
+                      className="px-2.5 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200/60"
+                    >
+                      {i.nom}
+                    </span>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useCVStore } from "@/lib/store";
 import { Langue, NiveauLangue } from "@/types/cv";
 import { Plus, Trash2, X, Sparkles, Languages, Heart } from "lucide-react";
@@ -26,29 +27,62 @@ const NIVEAU_LABELS: Record<NiveauLangue, string> = {
   natif: "Langue maternelle",
 };
 
+const SUGGESTIONS_COMPETENCES = [
+  "Communication",
+  "Gestion de projet",
+  "Travail en équipe",
+  "Résolution de problèmes",
+  "Autonomie",
+  "Sens de l'organisation",
+];
+
+const SUGGESTIONS_INTERETS = [
+  "Lecture",
+  "Voyages",
+  "Photographie",
+  "Sport",
+  "Musique",
+  "Bénévolat",
+];
+
 export default function StepCompetencesLangues() {
   const { cv, setCV } = useCVStore();
+  const [competenceInput, setCompetenceInput] = useState("");
+  const [interetInput, setInteretInput] = useState("");
 
-  const addCompetence = (nom: string) => {
-    if (!nom.trim()) return;
-    if (cv.competences.some((c) => c.nom.toLowerCase() === nom.trim().toLowerCase())) return;
-    setCV((c) => ({
-      ...c,
-      competences: [...c.competences, { id: crypto.randomUUID(), nom: nom.trim() }],
-    }));
+  const addCompetence = (text: string) => {
+    if (!text.trim()) return;
+    const parts = text
+      .split(/[,;\n]+/)
+      .map((p) => p.trim())
+      .filter(Boolean);
+    if (parts.length === 0) return;
+
+    setCV((c) => {
+      const existing = new Set((c.competences || []).map((comp) => comp.nom.toLowerCase()));
+      const toAdd = parts
+        .filter((nom) => !existing.has(nom.toLowerCase()))
+        .map((nom) => ({ id: crypto.randomUUID(), nom }));
+      if (toAdd.length === 0) return c;
+      return {
+        ...c,
+        competences: [...(c.competences || []), ...toAdd],
+      };
+    });
+    setCompetenceInput("");
   };
 
   const removeCompetence = (id: string) =>
     setCV((c) => ({
       ...c,
-      competences: c.competences.filter((comp) => comp.id !== id),
+      competences: (c.competences || []).filter((comp) => comp.id !== id),
     }));
 
   const addLangue = () =>
     setCV((c) => ({
       ...c,
       langues: [
-        ...c.langues,
+        ...(c.langues || []),
         { id: crypto.randomUUID(), nom: "", niveau: "courant" } as Langue,
       ],
     }));
@@ -56,22 +90,35 @@ export default function StepCompetencesLangues() {
   const updateLangue = (id: string, patch: Partial<Langue>) =>
     setCV((c) => ({
       ...c,
-      langues: c.langues.map((l) => (l.id === id ? { ...l, ...patch } : l)),
+      langues: (c.langues || []).map((l) => (l.id === id ? { ...l, ...patch } : l)),
     }));
 
   const removeLangue = (id: string) =>
     setCV((c) => ({
       ...c,
-      langues: c.langues.filter((l) => l.id !== id),
+      langues: (c.langues || []).filter((l) => l.id !== id),
     }));
 
-  const addInteret = (nom: string) => {
-    if (!nom.trim()) return;
-    if ((cv.interets || []).some((i) => i.nom.toLowerCase() === nom.trim().toLowerCase())) return;
-    setCV((c) => ({
-      ...c,
-      interets: [...(c.interets || []), { id: crypto.randomUUID(), nom: nom.trim() }],
-    }));
+  const addInteret = (text: string) => {
+    if (!text.trim()) return;
+    const parts = text
+      .split(/[,;\n]+/)
+      .map((p) => p.trim())
+      .filter(Boolean);
+    if (parts.length === 0) return;
+
+    setCV((c) => {
+      const existing = new Set((c.interets || []).map((i) => i.nom.toLowerCase()));
+      const toAdd = parts
+        .filter((nom) => !existing.has(nom.toLowerCase()))
+        .map((nom) => ({ id: crypto.randomUUID(), nom }));
+      if (toAdd.length === 0) return c;
+      return {
+        ...c,
+        interets: [...(c.interets || []), ...toAdd],
+      };
+    });
+    setInteretInput("");
   };
 
   const removeInteret = (id: string) =>
@@ -94,27 +141,64 @@ export default function StepCompetencesLangues() {
         </div>
 
         <div className="space-y-3">
-          <label className={labelClass}>Ajouter une compétence (Appuie sur Entrée)</label>
-          <input
-            className={inputClass}
-            placeholder="ex: Next.js, Gestion de projet, Figma, Agile..."
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                const target = e.target as HTMLInputElement;
-                addCompetence(target.value);
-                target.value = "";
-              }
-            }}
-          />
-          
-          {cv.competences.length > 0 && (
+          <label className={labelClass}>Ajouter une compétence (ou plusieurs séparées par des virgules)</label>
+          <div className="flex gap-2">
+            <input
+              className={inputClass}
+              value={competenceInput}
+              onChange={(e) => setCompetenceInput(e.target.value)}
+              placeholder="ex: Next.js, Gestion de projet, Figma, Agile..."
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addCompetence(competenceInput);
+                }
+              }}
+              onBlur={() => {
+                if (competenceInput.trim()) {
+                  addCompetence(competenceInput);
+                }
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => addCompetence(competenceInput)}
+              disabled={!competenceInput.trim()}
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-500 disabled:opacity-40 disabled:hover:bg-slate-900 dark:disabled:hover:bg-indigo-600 text-white text-xs font-bold transition-all shadow-sm flex-shrink-0"
+              title="Ajouter au CV"
+            >
+              <Plus size={15} /> Ajouter
+            </button>
+          </div>
+
+          {/* Suggestions rapides */}
+          <div className="flex flex-wrap items-center gap-1.5 pt-1">
+            <span className="text-[11px] text-slate-400 dark:text-zinc-500 mr-1">Idées rapides :</span>
+            {SUGGESTIONS_COMPETENCES.map((sug) => {
+              const alreadyAdded = (cv.competences || []).some(
+                (c) => c.nom.toLowerCase() === sug.toLowerCase()
+              );
+              if (alreadyAdded) return null;
+              return (
+                <button
+                  key={sug}
+                  type="button"
+                  onClick={() => addCompetence(sug)}
+                  className="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 dark:bg-zinc-800 dark:hover:bg-indigo-950/30 dark:hover:text-indigo-400 text-slate-600 dark:text-zinc-400 border border-slate-200/70 dark:border-zinc-700/60 transition-colors"
+                >
+                  + {sug}
+                </button>
+              );
+            })}
+          </div>
+
+          {(cv.competences || []).length > 0 && (
             <div className="flex flex-wrap gap-2 p-3 bg-slate-50/50 dark:bg-zinc-900/20 border border-slate-100 dark:border-zinc-800/80 rounded-2xl min-h-[50px] items-center">
-              {cv.competences.map((c) => (
+              {(cv.competences || []).map((c) => (
                 <span
                   key={c.id}
                   onClick={() => removeCompetence(c.id)}
-                  className="group flex items-center gap-1.5 text-xs font-bold bg-white text-slate-700 dark:bg-zinc-800 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700 pl-3 pr-2 py-1.5 rounded-xl transition-all cursor-pointer hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-950/20 dark:hover:text-red-400 dark:hover:border-red-900/50"
+                  className="group flex items-center gap-1.5 text-xs font-bold bg-white text-slate-700 dark:bg-zinc-800 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700 pl-3 pr-2 py-1.5 rounded-xl transition-all cursor-pointer hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-950/20 dark:hover:text-red-400 dark:hover:border-red-900/50 shadow-sm"
                   title="Supprimer cette compétence"
                 >
                   {c.nom}
@@ -140,7 +224,7 @@ export default function StepCompetencesLangues() {
         </div>
 
         <div className="space-y-3">
-          {cv.langues.map((l) => (
+          {(cv.langues || []).map((l) => (
             <div key={l.id} className="flex flex-col sm:flex-row gap-2 items-center bg-slate-50/20 dark:bg-zinc-900/10 border border-slate-100 dark:border-zinc-800/80 p-3 rounded-2xl shadow-sm w-full">
               <div className="flex-1 w-full">
                 <input
@@ -202,19 +286,56 @@ export default function StepCompetencesLangues() {
         </div>
 
         <div className="space-y-3">
-          <label className={labelClass}>{"Ajouter un centre d'intérêt (Appuie sur Entrée)"}</label>
-          <input
-            className={inputClass}
-            placeholder="ex: Photographie, Lecture, Voyages, Football, Bénévolat..."
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                const target = e.target as HTMLInputElement;
-                addInteret(target.value);
-                target.value = "";
-              }
-            }}
-          />
+          <label className={labelClass}>{"Ajouter un centre d'intérêt (ou plusieurs séparés par des virgules)"}</label>
+          <div className="flex gap-2">
+            <input
+              className={inputClass}
+              value={interetInput}
+              onChange={(e) => setInteretInput(e.target.value)}
+              placeholder="ex: Photographie, Lecture, Voyages, Football, Bénévolat..."
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addInteret(interetInput);
+                }
+              }}
+              onBlur={() => {
+                if (interetInput.trim()) {
+                  addInteret(interetInput);
+                }
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => addInteret(interetInput)}
+              disabled={!interetInput.trim()}
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-500 disabled:opacity-40 disabled:hover:bg-slate-900 dark:disabled:hover:bg-indigo-600 text-white text-xs font-bold transition-all shadow-sm flex-shrink-0"
+              title="Ajouter au CV"
+            >
+              <Plus size={15} /> Ajouter
+            </button>
+          </div>
+
+          {/* Suggestions d'intérêts rapides */}
+          <div className="flex flex-wrap items-center gap-1.5 pt-1">
+            <span className="text-[11px] text-slate-400 dark:text-zinc-500 mr-1">Idées rapides :</span>
+            {SUGGESTIONS_INTERETS.map((sug) => {
+              const alreadyAdded = (cv.interets || []).some(
+                (i) => i.nom.toLowerCase() === sug.toLowerCase()
+              );
+              if (alreadyAdded) return null;
+              return (
+                <button
+                  key={sug}
+                  type="button"
+                  onClick={() => addInteret(sug)}
+                  className="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 dark:bg-zinc-800 dark:hover:bg-indigo-950/30 dark:hover:text-indigo-400 text-slate-600 dark:text-zinc-400 border border-slate-200/70 dark:border-zinc-700/60 transition-colors"
+                >
+                  + {sug}
+                </button>
+              );
+            })}
+          </div>
 
           {(cv.interets || []).length > 0 && (
             <div className="flex flex-wrap gap-2 p-3 bg-slate-50/50 dark:bg-zinc-900/20 border border-slate-100 dark:border-zinc-800/80 rounded-2xl min-h-[50px] items-center">
@@ -222,7 +343,7 @@ export default function StepCompetencesLangues() {
                 <span
                   key={i.id}
                   onClick={() => removeInteret(i.id)}
-                  className="group flex items-center gap-1.5 text-xs font-bold bg-white text-slate-700 dark:bg-zinc-800 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700 pl-3 pr-2 py-1.5 rounded-xl transition-all cursor-pointer hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-950/20 dark:hover:text-red-400 dark:hover:border-red-900/50"
+                  className="group flex items-center gap-1.5 text-xs font-bold bg-white text-slate-700 dark:bg-zinc-800 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700 pl-3 pr-2 py-1.5 rounded-xl transition-all cursor-pointer hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-950/20 dark:hover:text-red-400 dark:hover:border-red-900/50 shadow-sm"
                   title="Supprimer ce centre d'intérêt"
                 >
                   {i.nom}
